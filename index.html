@@ -74,22 +74,6 @@
              font-size: 0.85rem; font-weight: 900; width: 26px; height: 26px; display: flex; justify-content: center; align-items: center; border-radius: 50%; box-shadow: 0 2px 6px rgba(0,0,0,0.3); z-index: 10; border: 2px solid white;
          }
          
-         /* تصميم الزر الكبير لإضافة سيارة في حال عدم وجود سيارات */
-         #emptyCarsPlus {
-             width: 100%; min-height: 180px; display: flex; flex-direction: column; align-items: center; justify-content: center;
-             cursor: pointer; border: 2px dashed var(--primary); border-radius: 16px; background: rgba(26,54,93,0.04);
-             margin: 10px auto; box-sizing: border-box; transition: 0.3s;
-         }
-         #emptyCarsPlus:hover { background: rgba(26,54,93,0.08); transform: translateY(-3px); }
-         #emptyCarsPlus .empty-plus {
-             width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-             font-size: 42px; line-height: 1; font-weight: 900; color: white; background: var(--primary);
-             box-shadow: 0 6px 15px rgba(26,54,93,0.2); margin-bottom: 15px; transition: 0.3s;
-         }
-         #emptyCarsPlus:hover .empty-plus { transform: scale(1.05); }
-         #emptyCarsPlus .empty-title { font-weight: 800; font-size: 1.15rem; color: var(--text-dark); margin-bottom: 5px; }
-         #emptyCarsPlus .empty-sub { font-size: 0.9rem; color: var(--text-muted); font-weight: bold; }
-
          .menu-item { display:flex; align-items:center; gap:15px; padding:15px; border-radius:12px; font-size:1.1rem; font-weight:bold; color:var(--text-dark); background:#f8fafc; border:1px solid var(--border-color); cursor:pointer; transition:0.2s; margin-bottom:10px; }
          .menu-item:active { transform:scale(0.98); background:#edf2f7; }
          .menu-item .icon { font-size:1.6rem; width:35px; text-align:center; display:flex; align-items:center; justify-content:center; }
@@ -188,6 +172,7 @@
           .alert-item { background-color: #fff5f5; border-right: 4px solid var(--danger); padding: 12px; margin-bottom: 12px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; display: flex; justify-content: space-between; align-items: center;}
          .btn-dismiss-alert { background: none; border: none; font-size: 1.2rem; color: var(--text-muted); cursor: pointer; }
          
+         /* إعادة السايد بار للعرض الأصلي 90% للحفاظ على الفارق الجانبي الأنيق ومنع تغطية كامل الشاشة */
          .sidebar {
              position: fixed; top: 0; right: -100%; width: 88%; max-width: 400px; height: 100%;
              background: #ffffff !important; z-index: 7000; box-shadow: -5px 0 25px rgba(0,0,0,0.2);
@@ -254,14 +239,11 @@
              <button class="btn-action-top" type="button" onclick="window.openOverlay('mainMenuSidebar', true)" title="القائمة الرئيسية">☰</button>
              <h2 style="color: var(--primary); font-size: 1.4rem; font-weight:900; margin:0;">إدارة السيارات</h2>
          </div>
-         
          <div class="car-grid" id="carGrid"></div>
           
-         <!-- تلميح التعديل والحذف يظهر ويختفي برمجياً -->
-         <div id="longPressHint" style="display: none; font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-bottom: 8px; font-weight: bold;">
+         <div style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-bottom: 8px; font-weight: bold;">
              💡 ملاحظة: اضغط مطولاً على السيارة للتعديل أو الحذف
          </div>
-
          <div class="prayer-box">
              <div class="prayer-title">دعاء السفر 🤲</div>
              <div class="prayer-text">"الله أكبر، الله أكبر، سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ<br>وَإِنَّا إِلَىٰ رَبِّنَا لَمُنقَلِبُونَ"</div>
@@ -455,12 +437,12 @@
                  </div>
                  <div class="form-group"><label>الوصف / الملاحظات (القطعة)</label><input type="text" id="serviceDesc" placeholder="مثال: تيل فرامل أمامي" required></div>
                  
+                 <!-- حقل اسم الورشة مع زر اختيار سريع ومرن -->
                  <div class="form-group">
                      <label>المكان (اسم المركز أو الورشة)</label>
                      <div style="display:flex; gap:8px;">
                          <input type="text" id="serviceLocation" placeholder="اكتب اسم الورشة مباشرة..." style="flex:1;">
                          <button type="button" onclick="window.openWorkshopSelectModal()" style="padding:0 12px; background:#edf2f7; border:1px solid var(--border-color); border-radius:8px; font-weight:bold; cursor:pointer; color:var(--primary);">📋 الورش</button>
-                         <button type="button" onclick="window.open('https://maps.google.com', '_blank')" style="padding:10px; border-radius:8px; background:#edf2f7; border:1px solid var(--border-color); cursor:pointer;" title="فتح الخرائط">🗺️</button>
                      </div>
                  </div>
 
@@ -597,12 +579,14 @@
                  ☁️ رفع التسجيلات (حفظ احتياطي)
              </button>
              
+             <!-- زر استيراد شيت إكسل المضاف حديثاً -->
              <button type="button" onclick="document.getElementById('excelFileInput').click()"
                  style="width:100%; background:#2b6cb0; color:white; border:none; border-radius:10px; padding:11px 10px; margin:0 0 6px; font-weight:800; font-size:0.9rem; cursor:pointer;">
                  📥 استيراد بيانات من شيت إكسل
              </button>
              <input type="file" id="excelFileInput" accept=".xls,.xlsx" style="display:none;" onchange="window.importLogsFromExcel(this)">
 
+             <!-- زر تصدير الإكسل -->
              <button type="button" onclick="window.exportLogsToExcel()"
                  style="width:100%; background:var(--accent); color:white; border:none; border-radius:10px; padding:11px 10px; margin:0 0 6px; font-weight:800; font-size:0.9rem; cursor:pointer;">
                  📊 تصدير شيت إكسل (للفترة المحددة)
@@ -629,6 +613,7 @@
                  <input type="text" id="emgSearchInput" placeholder="بحث بالاسم أو البيان..." oninput="window.renderEmergencyContacts()" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--border-color); outline:none;">
              </div>
              
+             <!-- إدخال يدوي 100% دون أي أزرار استيراد تسبب أخطاء بالنظام -->
              <button class="btn-submit" type="button" id="btnToggleEmgForm" onclick="window.toggleEmergencyForm()" style="background:#edf2f7; color:var(--primary); border:1px dashed var(--primary); margin-bottom:15px; padding:10px; box-shadow:none;">➕ إضافة جهة جديدة</button>
              
              <div id="emergencyFormContainer" style="display:none; background:#f8fafc; padding:15px; border-radius:10px; border:1px solid var(--border-color); margin-bottom:15px;">
@@ -641,10 +626,7 @@
                  </div>
                  <div class="form-group"><input type="text" id="emgTitle" placeholder="بيان الورشة (مثال: مركز العفشة)"></div>
                  <div class="form-group"><input type="text" id="emgName" placeholder="اسم صاحب الورشة / الفني"></div>
-                 <div class="form-group" style="display:flex; gap:5px;">
-                     <input type="text" id="emgAddress" placeholder="العنوان" style="flex:1;">
-                     <button type="button" onclick="window.open('https://maps.google.com', '_blank')" style="padding:10px; border-radius:8px; background:#edf2f7; border:1px solid var(--border-color); cursor:pointer;" title="فتح الخرائط">🗺️</button>
-                 </div>
+                 <div class="form-group"><input type="text" id="emgAddress" placeholder="العنوان"></div>
                  <div class="form-group" style="display:flex; gap:10px;">
                      <input type="tel" id="emgPhone" placeholder="رقم الهاتف 1" dir="ltr" style="flex:1; text-align: left;">
                      <input type="tel" id="emgPhone2" placeholder="رقم الهاتف 2 (اختياري)" dir="ltr" style="flex:1; text-align: left;">
@@ -928,6 +910,7 @@
              if(!user) { if(!silent) alert('يجب تسجيل الدخول أولاً!'); return; }
              if(window.isSyncing) return;
 
+             // حماية أمان: منع رفع بيانات فارغة تمسح النسخة السحابية
              var state = JSON.parse(localStorage.getItem(APP_STATE_KEY) || '{"cars":[]}');
              if (!state.cars || state.cars.length === 0) {
                  if(!silent) alert('⚠️ تنبيه أمان: لا توجد سيارات أو بيانات مسجلة محلياً! تم إيقاف الرفع لمنع مسح بياناتك السابقة.');
@@ -1061,6 +1044,7 @@
              }, 10); 
          };
 
+         // دالة استيراد السجلات من ملف إكسل XLS / HTML المُصدّر مسبقاً
          window.importLogsFromExcel = function(input) {
              if (!window.activeCarId) {
                  alert('يرجى فتح السيارة أولاً لاستيراد البيانات إليها.');
@@ -1175,6 +1159,7 @@
              document.getElementById('workshopSelectModal').style.display = 'flex';
          };
 
+         // --- Emergency Contacts Logic ---
          window.toggleEmergencyForm = function() {
              var form = document.getElementById('emergencyFormContainer');
              var btn = document.getElementById('btnToggleEmgForm');
@@ -1307,6 +1292,7 @@
              }
          };
 
+         // --- إدارة الوقود ---
          window.currentFuels = [];
          window.initFuelSettings = function() {
              var data = JSON.parse(localStorage.getItem(GLOBAL_SETTINGS_KEY) || '{}');
@@ -1661,6 +1647,7 @@
               window.requestExitApp();
          });
 
+          // تفعيل السحب اليميني لفتح السجل
           window.setupSwipeGesture = function() {
              var touchstartX = 0;
              var touchendX = 0;
@@ -1815,12 +1802,9 @@
           window.renderLandingScreen = function() {
              var state = JSON.parse(localStorage.getItem(APP_STATE_KEY));
              var grid = document.getElementById('carGrid');
-             var hint = document.getElementById('longPressHint');
              if(!grid) return;
              grid.innerHTML = '';
-             
              if (state && state.cars && state.cars.length > 0) {
-                 if(hint) hint.style.display = 'block';
                  grid.className = state.cars.length === 1 ? 'car-grid single-car-mode' : 'car-grid multi-car-mode';
                  for(var i=0; i<state.cars.length; i++) {
                      var car = state.cars[i];
@@ -1851,14 +1835,6 @@
                              actionFooterHtml +
                          '</div>';
                  }
-             } else {
-                 if(hint) hint.style.display = 'none';
-                 grid.className = 'car-grid single-car-mode';
-                 grid.innerHTML = '<div id="emptyCarsPlus" onclick="window.openCarFormSidebar(null)">' +
-                     '<div class="empty-plus">+</div>' +
-                     '<div class="empty-title">إضافة سيارة جديدة</div>' +
-                     '<div class="empty-sub">اضغط هنا لتسجيل بيانات السيارة</div>' +
-                     '</div>';
              }
          };
          
@@ -2318,6 +2294,400 @@
              window.scrollTo({top: 0, behavior: 'smooth'});
          };
          
+          window.renderAlertsModal = function() {
+             var logs = window.getLogs(); var maxOdo = 0;
+             for(var i=0; i<logs.length; i++) { if(logs[i].odometer && parseInt(logs[i].odometer) > maxOdo) maxOdo = parseInt(logs[i].odometer); }
+             
+             var sortedLogs = logs.slice().sort(function(a, b) {
+                 var odoA = parseInt(a.odometer) || 0;
+                 var odoB = parseInt(b.odometer) || 0;
+                 if(odoA !== odoB) return odoA - odoB;
+                 return new Date(a.date) - new Date(b.date);
+             });
+
+             var latestServices = {};
+             for(var j=0; j<sortedLogs.length; j++) {
+                 var l = sortedLogs[j];
+                 if(l.type === 'صيانة') {
+                     var key = l.serviceCategory;
+                     latestServices[key] = l;
+                 }
+             }
+
+             var dismissedKey = 'dismissed_alerts_' + activeCarId; 
+             var dismissed = JSON.parse(localStorage.getItem(dismissedKey) || '[]');
+             var alertsHtml = ''; 
+             var alertCount = 0;
+
+             var licAlerts = window.getLicenseAlerts(activeCarId);
+             for(var a=0; a<licAlerts.length; a++) {
+                 var al = licAlerts[a];
+                 if(dismissed.indexOf(al.id) === -1) {
+                     alertCount++;
+                     var colorStyle = al.level === 'danger' ? 'color: var(--danger);' : (al.level === 'warning' ? 'color: var(--warning);' : 'color: var(--accent);');
+                     var bgStyle = al.level === 'danger' ? 'background-color: #fff5f5; border-right: 4px solid var(--danger);' : (al.level === 'warning' ? 'background-color: #fffaf0; border-right: 4px solid var(--warning);' : 'background-color: #ebf8ff; border-right: 4px solid var(--accent);');
+                     alertsHtml += '<div class="alert-item" style="display:flex; justify-content:space-between; align-items:center; ' + bgStyle + '">' +
+                         '<div style="' + colorStyle + '">🪪 <strong>تنبيه رخصة</strong> <br><small>' + al.msg + '</small></div>' +
+                         '<button class="btn-dismiss-alert" onclick="window.dismissAlert(\'' + al.id + '\')" title="إخفاء وحذف التنبيه">✖</button></div>';
+                 }
+             }
+
+             for(var k in latestServices) {
+                 var s = latestServices[k];
+                 if(s.interval && parseInt(s.interval) > 0) {
+                     var interval = parseInt(s.interval);
+                     var targetOdo = parseInt(s.odometer) + interval;
+                     var alertThreshold = targetOdo - Math.round(interval * 0.10);
+                     
+                     if(maxOdo >= alertThreshold) {
+                         if(dismissed.indexOf(String(s.id)) === -1 && dismissed.indexOf(s.id) === -1) {
+                             alertCount++; 
+                             var diff = targetOdo - maxOdo;
+                             var alertContent = '';
+                             var bgStyle = '';
+                             if(diff <= 0) {
+                                 alertContent = '<div>⚠️ تأخر في <strong>' + k + ' (' + s.desc + ')</strong> <br><small style="color:var(--danger);">تخطى العداد التغيير بـ ' + Math.abs(diff) + ' كم</small></div>';
+                                 bgStyle = 'background-color: #fff5f5; border-right: 4px solid var(--danger);';
+                             } else {
+                                 alertContent = '<div>⏳ اقترب موعد <strong>' + k + ' (' + s.desc + ')</strong> <br><small style="color:var(--warning);">متبقي ' + diff + ' كم على التغيير</small></div>';
+                                 bgStyle = 'background-color: #fffaf0; border-right: 4px solid var(--warning);';
+                             }
+                             
+                             alertsHtml += '<div class="alert-item" style="display:flex; justify-content:space-between; align-items:center; ' + bgStyle + '">' +
+                                     alertContent +
+                                     '<button class="btn-dismiss-alert" onclick="window.dismissAlert(\'' + s.id + '\')" title="إخفاء وحذف التنبيه">✖</button></div>';
+                         }
+                     }
+                 }
+             }
+
+             var badge = document.getElementById('notifCount');
+             if(alertCount > 0) { badge.innerText = alertCount; badge.style.display = 'block'; } else { badge.style.display = 'none'; }
+             if(alertsHtml === '') alertsHtml = '<p style="text-align:center; color:var(--text-muted);">لا توجد تنبيهات حالياً.</p>';
+             document.getElementById('alertsContent').innerHTML = alertsHtml;
+         };
+
+          window.dismissAlert = function(id) {
+             var dismissedKey = 'dismissed_alerts_' + activeCarId; 
+             var dismissed = JSON.parse(localStorage.getItem(dismissedKey) || '[]');
+             if(dismissed.indexOf(id) === -1) dismissed.push(id);
+             localStorage.setItem(dismissedKey, JSON.stringify(dismissed)); 
+             window.updateDashboard(); 
+             window.renderAlertsModal();
+         };
+
+          window.restoreAlerts = function() {
+             var dismissedKey = 'dismissed_alerts_' + activeCarId; localStorage.removeItem(dismissedKey);
+             window.updateDashboard(); window.renderAlertsModal();
+         };
+
+          window.setFilterDates = function(type, btn) {
+             var btns = document.querySelectorAll('.btn-filter-quick');
+             for(var i=0; i<btns.length; i++) btns[i].classList.remove('active');
+             if(btn) btn.classList.add('active');
+             var startInput = document.getElementById('filterStartDate');
+             var endInput = document.getElementById('filterEndDate');
+             var today = new Date();
+             var start, end;
+             if (type === 'thisMonth') {
+                 start = new Date(today.getFullYear(), today.getMonth(), 1);
+                 end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+             } else if (type === 'lastMonth') {
+                 start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                 end = new Date(today.getFullYear(), today.getMonth(), 0);
+             } else if (type === 'all') {
+                 startInput.value = '';
+                 endInput.value = '';
+                 window.updateDashboard();
+                 return;
+             }
+             var format = function(d) {
+                 var m = d.getMonth() + 1; var day = d.getDate();
+                 return d.getFullYear() + '-' + (m < 10 ? '0'+m : m) + '-' + (day < 10 ? '0'+day : day);
+             };
+             startInput.value = format(start);
+             endInput.value = format(end);
+             window.updateDashboard();
+         };
+
+          window.updateDashboard = function() {
+             var allLogs = window.getLogs();
+             var alertCount = window.checkAlertsCountForCar(activeCarId);
+             var badge = document.getElementById('notifCount');
+             if(alertCount > 0) { badge.innerText = alertCount; badge.style.display = 'inline-block'; } else { badge.style.display = 'none'; }
+             var absoluteMaxOdo = 0;
+             for(var m=0; m<allLogs.length; m++) { if (allLogs[m].odometer && parseInt(allLogs[m].odometer) > absoluteMaxOdo) absoluteMaxOdo = parseInt(allLogs[m].odometer); }
+             var filteredLogs = [];
+             var filterStartEl = document.getElementById('filterStartDate'); var filterEndEl = document.getElementById('filterEndDate');
+             var startDateStr = filterStartEl ? filterStartEl.value : null; var endDateStr = filterEndEl ? filterEndEl.value : null;
+             var start = startDateStr ? new Date(startDateStr) : null; if(start) start.setHours(0,0,0,0);
+             var end = endDateStr ? new Date(endDateStr) : null; if(end) end.setHours(23,59,59,999);
+             for(var n=0; n<allLogs.length; n++) {
+                 var lDate = new Date(allLogs[n].date); var include = true;
+                 if(start && lDate < start) include = false; if(end && lDate > end) include = false;
+                 if(include) filteredLogs.push(allLogs[n]);
+             }
+             var totalCost = 0, fuelCost = 0, serviceCost = 0, otherCost = 0;
+             for(var p=0; p<filteredLogs.length; p++) {
+                 var cost = filteredLogs[p].cost || 0; totalCost += cost;
+                 if (filteredLogs[p].type === 'وقود') fuelCost += cost;
+                 if (filteredLogs[p].type === 'صيانة') serviceCost += cost;
+                 if (filteredLogs[p].type === 'أخرى') Math.round(otherCost += cost);
+             }
+             var fuelLogs = [];
+             for(var q=0; q<filteredLogs.length; q++) { if(filteredLogs[q].type === 'وقود' && filteredLogs[q].odometer && filteredLogs[q].cost) fuelLogs.push(filteredLogs[q]); }
+             fuelLogs.sort(function(a,b) { return parseInt(a.odometer) - parseInt(b.odometer); });
+             var consumptionRate = 0;
+             if(fuelLogs.length >= 2) {
+                 var lastLog = fuelLogs[fuelLogs.length - 1];
+                 var prevLog = fuelLogs[fuelLogs.length - 2];
+                 var totalDistance = parseInt(lastLog.odometer) - parseInt(prevLog.odometer);
+                 var consumedLiters = parseFloat(lastLog.liters) || 0;
+                 if(consumedLiters > 0 && totalDistance > 0) { consumptionRate = (totalDistance / consumedLiters).toFixed(1); }
+             }
+             
+             var validOdos = [];
+             for(var o=0; o<filteredLogs.length; o++) {
+                 if(filteredLogs[o].odometer && !isNaN(parseInt(filteredLogs[o].odometer))) {
+                     validOdos.push(parseInt(filteredLogs[o].odometer));
+                 }
+             }
+             var costPerKm = 0;
+             var periodDistance = 0;
+             if(validOdos.length >= 2) {
+                 validOdos.sort(function(a,b){return a-b;});
+                 periodDistance = validOdos[validOdos.length-1] - validOdos[0];
+                 if(periodDistance > 0 && totalCost > 0) {
+                     costPerKm = (totalCost / periodDistance).toFixed(2);
+                 }
+             }
+             
+             var elTotal = document.getElementById('kpiTotalCost'); if(elTotal) elTotal.innerText = totalCost + ' ج.م';
+             var elFuel = document.getElementById('kpiFuelCost'); if(elFuel) elFuel.innerText = fuelCost + ' ج.م';
+             var elServ = document.getElementById('kpiServiceCost'); if(elServ) elServ.innerText = serviceCost + ' ج.م';
+             var elOth = document.getElementById('kpiOtherCost'); if(elOth) elOth.innerText = otherCost + ' ج.م';
+             var elOdo = document.getElementById('kpiLastOdo'); if(elOdo) elOdo.innerText = absoluteMaxOdo + ' كم';
+             var elCons = document.getElementById('kpiConsumption'); if(elCons) elCons.innerText = consumptionRate > 0 ? (consumptionRate + ' كم/لتر') : '-';
+             var elPeriodDist = document.getElementById('kpiPeriodDistance'); if(elPeriodDist) elPeriodDist.innerText = periodDistance > 0 ? (periodDistance + ' كم') : '0 كم';
+             var elCostKm = document.getElementById('kpiCostPerKm'); if(elCostKm) elCostKm.innerText = costPerKm > 0 ? (costPerKm + ' ج.م/كم') : '-';
+         };
+
+         window.exportLogsToExcel = function() {
+             var logs = window.getLogs();
+             var searchText = document.getElementById('logSearchText').value.toLowerCase();
+             var filterType = document.getElementById('logFilterType').value;
+             var filterSubType = document.getElementById('logFilterSubType').value;
+             var filterStartDate = document.getElementById('logStartDate').value;
+             var filterEndDate = document.getElementById('logEndDate').value;
+             var filteredLogs = [];
+             
+             for(var i=0; i<logs.length; i++) {
+                 var l = logs[i]; var pass = true;
+                 if(filterType !== 'all' && l.type !== filterType) pass = false;
+                 if(filterType === 'صيانة' && filterSubType !== 'all') { if(!l.serviceCategory || l.serviceCategory.indexOf(filterSubType) === -1) pass = false; }
+                 if(pass && searchText) {
+                     var matchText = false;
+                     if(l.desc && l.desc.toLowerCase().indexOf(searchText) !== -1) matchText = true;
+                     if(l.location && l.location.toLowerCase().indexOf(searchText) !== -1) matchText = true;
+                     if(l.serviceCategory && l.serviceCategory.toLowerCase().indexOf(searchText) !== -1) matchText = true;
+                     if(!matchText) pass = false;
+                 }
+                 if(pass && l.date) {
+                     var lDate = new Date(l.date); lDate.setHours(0,0,0,0);
+                     if (filterStartDate) { var sDate = new Date(filterStartDate); sDate.setHours(0,0,0,0); if (lDate < sDate) pass = false; }
+                     if (filterEndDate) { var eDate = new Date(filterEndDate); eDate.setHours(23,59,59,999); if (lDate > eDate) pass = false; }
+                 }
+                 if(pass) filteredLogs.push(l);
+             }
+             
+             filteredLogs.sort(function(a,b) {
+                 var dateA = new Date(a.date || 0); var dateB = new Date(b.date || 0);
+                 if(dateB - dateA !== 0) return dateB - dateA;
+                 return b.id - a.id; 
+             });
+
+             if(filteredLogs.length === 0) { alert('لا توجد بيانات لتصديرها.'); return; }
+
+             var tableHtml = '<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8">';
+             tableHtml += '<style>td, th { text-align: center; vertical-align: middle; padding: 6px; border: 1px solid #ccc; font-family: Arial; } th { background-color: #1a365d; color: white; font-weight: bold; }</style>';
+             tableHtml += '</head><body dir="rtl"><table border="1" style="border-collapse: collapse; width: 100%;">';
+             
+             tableHtml += '<tr>';
+             var headers = ["التاريخ", "النوع", "القسم الفرعي", "الوصف", "قراءة العداد (كم)", "المكان / المحطة", "التكلفة (ج.م)", "الكمية (لتر)", "طريقة الدفع", "فترة التغيير (كم)"];
+             for(var h=0; h<headers.length; h++) { tableHtml += '<th>' + headers[h] + '</th>'; }
+             tableHtml += '</tr>';
+
+             for(var j=0; j<filteredLogs.length; j++) {
+                 var log = filteredLogs[j];
+                 var subCategory = log.type === 'صيانة' ? (log.serviceCategory || '') : '';
+                 var rowData = [
+                     log.date || '', log.type || '', subCategory, log.desc || '', log.odometer || '', log.location || '', log.cost || '0', log.liters || '', log.payMethod || '', log.interval || ''
+                 ];
+                 tableHtml += '<tr>';
+                 for(var c=0; c<rowData.length; c++) {
+                     if(c === 0) tableHtml += '<td style="mso-number-format:\'\\@\';">' + rowData[c] + '</td>';
+                     else tableHtml += '<td>' + rowData[c] + '</td>';
+                 }
+                 tableHtml += '</tr>';
+             }
+             tableHtml += '</table></body></html>';
+
+             var blob = new Blob([tableHtml], { type: 'application/vnd.ms-excel' });
+             var url = URL.createObjectURL(blob);
+             var link = document.createElement("a");
+             link.setAttribute("href", url);
+             link.setAttribute("download", "سجل_السيارة_" + new Date().toISOString().split('T')[0] + ".xls");
+             document.body.appendChild(link); link.click(); document.body.removeChild(link);
+         };
+
+          window.clearLogFilters = function() {
+             document.getElementById('logSearchText').value = ''; 
+             document.getElementById('logFilterType').value = 'all';
+             document.getElementById('logFilterSubType').value = 'all'; 
+             document.getElementById('logFilterSubType').style.display = 'none';
+             document.getElementById('logStartDate').value = '';
+             document.getElementById('logEndDate').value = '';
+             window.renderLogsSidebar();
+         };
+          window.handleFilterChange = function() {
+             var t = document.getElementById('logFilterType').value; var sub = document.getElementById('logFilterSubType');
+             if(t === 'صيانة') sub.style.display = 'block'; else { sub.style.display = 'none'; sub.value = 'all'; }
+             window.renderLogsSidebar();
+         };
+          window.renderLogsSidebar = function() {
+             var logs = window.getLogs();
+             var searchText = document.getElementById('logSearchText').value.toLowerCase();
+             var filterType = document.getElementById('logFilterType').value;
+             var filterSubType = document.getElementById('logFilterSubType').value;
+             var filterStartDate = document.getElementById('logStartDate').value;
+             var filterEndDate = document.getElementById('logEndDate').value;
+             var filteredLogs = [];
+             
+             for(var i=0; i<logs.length; i++) {
+                 var l = logs[i]; var pass = true;
+                 if(filterType !== 'all' && l.type !== filterType) pass = false;
+                 if(filterType === 'صيانة' && filterSubType !== 'all') { if(!l.serviceCategory || l.serviceCategory.indexOf(filterSubType) === -1) pass = false; }
+                 if(pass && searchText) {
+                     var matchText = false;
+                     if(l.desc && l.desc.toLowerCase().indexOf(searchText) !== -1) matchText = true;
+                     if(l.location && l.location.toLowerCase().indexOf(searchText) !== -1) matchText = true;
+                     if(l.serviceCategory && l.serviceCategory.toLowerCase().indexOf(searchText) !== -1) matchText = true;
+                     if(!matchText) pass = false;
+                 }
+                 if(pass && l.date) {
+                     var lDate = new Date(l.date); lDate.setHours(0,0,0,0);
+                     if (filterStartDate) { var sDate = new Date(filterStartDate); sDate.setHours(0,0,0,0); if (lDate < sDate) pass = false; }
+                     if (filterEndDate) { var eDate = new Date(filterEndDate); eDate.setHours(23,59,59,999); if (lDate > eDate) pass = false; }
+                 }
+                 if(pass) filteredLogs.push(l);
+             }
+             
+             filteredLogs.sort(function(a,b) {
+                 var dateA = new Date(a.date || 0); var dateB = new Date(b.date || 0);
+                 if(dateB - dateA !== 0) return dateB - dateA;
+                 return b.id - a.id; 
+             });
+             
+             var container = document.getElementById('sidebarLogsContainer');
+             if (filteredLogs.length === 0) {
+                 container.innerHTML = '<p style="text-align:center; color:var(--text-muted);">لا توجد سجلات مطابقة.</p>';
+             } else {
+                 var html = '';
+                 for(var j=0; j<filteredLogs.length; j++) {
+                     var log = filteredLogs[j];
+                     var icon = '📦';
+                     if (log.type === 'وقود') icon = '⛽';
+                     else if (log.type === 'صيانة') {
+                         if (log.serviceCategory.indexOf('غيار زيت') !== -1) icon = '🛢️'; else if (log.serviceCategory.indexOf('ميكانيكا') !== -1) icon = '⚙️'; else if (log.serviceCategory.indexOf('كهرباء') !== -1) icon = '⚡'; else if (log.serviceCategory.indexOf('كاوتش') !== -1) icon = '🛞'; else icon = '🔧';
+                     }
+                     else if (log.type === 'أخرى') {
+                         if (log.desc.indexOf('غسيل') !== -1) icon = '🧽'; else if (log.desc.indexOf('ركنة') !== -1) icon = '🅿️'; else if (log.desc.indexOf('رسوم') !== -1) icon = '🎟️'; else if (log.desc.indexOf('مخالفة') !== -1) icon = '⛔'; else if (log.desc.indexOf('تراخيص') !== -1) icon = '📝';
+                     }
+                     var title = log.type === 'صيانة' ? (log.serviceCategory + ' - ' + log.desc) : log.desc;
+                     var extraLiters = (log.type === 'وقود' && log.liters) ? '<span style="font-size:0.85rem; color:var(--accent); font-weight:bold; margin-top:3px;">' + log.liters + ' لتر</span>' : '';
+                     var syncTag = log.synced ? '<span style="color:#38a169; font-size:0.75rem;">☁️ تم الرفع</span>' : '<span style="color:#dd6b20; font-size:0.75rem;">⏳ غير مرفوعة</span>';
+                     html += '<div class="sidebar-log-item" ondblclick="window.openLogDetails(' + log.id + ')">' +
+                         '<div class="sidebar-log-icon">' + icon + '</div>' +
+                         '<div class="sidebar-log-details">' +
+                             '<h4>' + title + '</h4>' +
+                             '<p>' + log.date + ' | ' + syncTag + '</p>' +
+                         '</div>' +
+                         '<div style="display:flex; flex-direction:column; align-items:flex-end; justify-content:center;">' +
+                             '<span class="sidebar-log-cost">' + (log.cost ? log.cost + ' ج.م' : '') + '</span>' +
+                             extraLiters +
+                         '</div>' +
+                     '</div>';
+                 }
+                 container.innerHTML = html;
+             }
+         };
+
+          window.openCarDataViewModal = function() {
+             var data = JSON.parse(localStorage.getItem(window.getMyDataKey()) || '{}');
+             var plateTxt = data.plate || '-'; var descTxt = data.desc || '-'; var dlNumTxt = data.dlNumber || '-'; var dlExpTxt = data.dlExpiry || '-'; var vlExpTxt = data.vlExpiry || '-';
+             var html = '<div class="data-view-card"><strong>المركبة:</strong><p>' + plateTxt + ' | ' + descTxt + '</p></div>' +
+                        '<div class="data-view-card"><strong>رخصة القيادة:</strong><p>' + dlNumTxt + ' <br><small>انتهاء: ' + dlExpTxt + '</small></p></div>' +
+                        '<div class="data-view-card"><strong>رخصة السيارة:</strong><p>انتهاء: ' + vlExpTxt + '</p></div>';
+             var addImgView = function(title, src) { if(src) { html += '<div class="data-view-card"><strong>' + title + '</strong><img src="' + src + '" class="data-img-view" onclick="window.openImageViewer(this.src)"><a href="' + src + '" download="' + title + '.jpg" class="btn-download-small">📥 حفظ الصورة</a></div>'; } };
+             addImgView('صورة السيارة', data.carImg); addImgView('رخصة القيادة (أمامي)', data.dlFront); addImgView('رخصة القيادة (خلفي)', data.dlBack); addImgView('رخصة السيارة (أمامي)', data.vlFront); addImgView('رخصة السيارة (خلفي)', data.vlBack);
+             document.getElementById('carDataViewContent').innerHTML = html; window.openOverlay('carDataViewModal');
+         };
+
+          window.openLogDetails = function(id) {
+             var logs = window.getLogs(); var log = null;
+             for(var i=0; i<logs.length; i++) { if(logs[i].id === id) { log = logs[i]; break; } }
+             if(!log) return;
+             document.getElementById('detailsLogId').value = log.id;
+             var html = '<div class="detail-row"><span>النوع:</span> <strong>' + log.type + '</strong></div><div class="detail-row"><span>التاريخ:</span> <strong>' + log.date + '</strong></div>';
+             if (log.type === 'صيانة') {
+                 html += '<div class="detail-row"><span>القسم:</span> <strong>' + log.serviceCategory + '</strong></div><div class="detail-row"><span>الوصف:</span> <strong>' + log.desc + '</strong></div>';
+                 if (log.interval) html += '<div class="detail-row"><span>فترة التغيير:</span> <strong>' + log.interval + ' كم</strong></div>';
+             } else if (log.type === 'وقود') {
+                 var payMethod = log.payMethod || 'نقدي 💵'; var liters = log.liters ? Math.round(parseFloat(log.liters)) : '';
+                 html += '<div class="detail-row"><span>البنزين:</span> <strong>' + log.desc + ' ⛽</strong></div><div class="detail-row"><span>طريقة الدفع:</span> <strong>' + payMethod + '</strong></div>';
+                 if(liters) html += '<div class="detail-row"><span>الكمية:</span> <strong style="color:var(--accent);">' + liters + ' لتر</strong></div>';
+             } else { html += '<div class="detail-row"><span>الوصف:</span> <strong>' + log.desc + '</strong></div>'; }
+             var odoTxt = log.odometer || '-'; var costTxt = log.cost || 0;
+             html += '<div class="detail-row"><span>العداد:</span> <strong>' + odoTxt + ' كم ⏱️</strong></div><div class="detail-row"><span>التكلفة:</span> <strong style="color:var(--primary);">' + costTxt + ' ج.م</strong></div>';
+             var locLabel = log.type === 'وقود' ? 'المحطة' : (log.type === 'صيانة' ? 'المكان/الورشة' : 'المكان/الموقع');
+             if (log.location) html += '<div class="detail-row"><span>' + locLabel + ':</span> <strong>' + log.location + ' 📍</strong></div>';
+             if (log.odoImg) html += '<p style="margin-top:10px; font-weight:bold;">صورة العداد / المرفق:</p><img src="' + log.odoImg + '" style="width:100%; border-radius:8px; cursor:pointer;" onclick="window.openImageViewer(this.src)">';
+             if (log.receiptImg) html += '<p style="margin-top:10px; font-weight:bold;">صورة الفاتورة:</p><img src="' + log.receiptImg + '" style="width:100%; border-radius:8px; cursor:pointer;" onclick="window.openImageViewer(this.src)">';
+             document.getElementById('modalDetailsContent').innerHTML = html; window.openOverlay('logDetailsModal');
+         };
+         
+         window.pickContactForCar = async function() {
+             if ('contacts' in navigator && 'ContactsManager' in window) {
+                 try {
+                     const contacts = await navigator.contacts.select(['name'], {multiple: false});
+                     if (contacts.length > 0) document.getElementById('carPlate').value = contacts[0].name[0];
+                 } catch (ex) { alert('لم يتم التحديد.'); }
+             } else {
+                 alert('متصفحك الحالي لا يدعم الوصول المباشر لجهات الاتصال. يرجى الإدخال يدوياً.');
+             }
+         };
+
+         window.showWorkshopPicker = function() {
+             var contacts = JSON.parse(localStorage.getItem('car_emergency_contacts') || '[]');
+             var workshops = contacts.filter(function(c) { return c.category === 'مراكز صيانة'; });
+             
+             if(workshops.length === 0) {
+                 alert('لا توجد ورش صيانة مسجلة حالياً في قسم الطوارئ والورش.');
+                 return;
+             }
+             
+             var optionsHtml = workshops.map(function(w) {
+                 return '<button type="button" style="display:block; width:100%; padding:15px; margin-bottom:10px; background:#f8fafc; border:1px solid var(--border-color); border-radius:8px; text-align:right; font-weight:bold; font-size:1rem; cursor:pointer;" onclick="document.getElementById(\'serviceLocation\').value = \'' + w.title + '\'; window.closeOverlay();">' + w.title + (w.name ? ' (' + w.name + ')' : '') + '</button>';
+             }).join('');
+             
+             var modalContent = '<div class="modal-content"><h3 class="section-title">اختر ورشة الصيانة</h3><div style="max-height: 60vh; overflow-y: auto; padding-right: 5px;">' + optionsHtml + '</div><button class="btn-close" type="button" onclick="window.closeOverlay()">إلغاء</button></div>';
+             
+             var pickerModal = document.getElementById('workshopPickerModal');
+             if(pickerModal) {
+                 pickerModal.innerHTML = modalContent;
+                 window.openOverlay('workshopPickerModal');
+             }
+         };
      </script> 
 </body> 
 </html>
