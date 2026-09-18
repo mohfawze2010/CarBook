@@ -74,6 +74,22 @@
              font-size: 0.85rem; font-weight: 900; width: 26px; height: 26px; display: flex; justify-content: center; align-items: center; border-radius: 50%; box-shadow: 0 2px 6px rgba(0,0,0,0.3); z-index: 10; border: 2px solid white;
          }
          
+         /* تصميم الزر الكبير لإضافة سيارة في حال عدم وجود سيارات */
+         #emptyCarsPlus {
+             width: 100%; min-height: 180px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+             cursor: pointer; border: 2px dashed var(--primary); border-radius: 16px; background: rgba(26,54,93,0.04);
+             margin: 10px auto; box-sizing: border-box; transition: 0.3s;
+         }
+         #emptyCarsPlus:hover { background: rgba(26,54,93,0.08); transform: translateY(-3px); }
+         #emptyCarsPlus .empty-plus {
+             width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+             font-size: 42px; line-height: 1; font-weight: 900; color: white; background: var(--primary);
+             box-shadow: 0 6px 15px rgba(26,54,93,0.2); margin-bottom: 15px; transition: 0.3s;
+         }
+         #emptyCarsPlus:hover .empty-plus { transform: scale(1.05); }
+         #emptyCarsPlus .empty-title { font-weight: 800; font-size: 1.15rem; color: var(--text-dark); margin-bottom: 5px; }
+         #emptyCarsPlus .empty-sub { font-size: 0.9rem; color: var(--text-muted); font-weight: bold; }
+
          .menu-item { display:flex; align-items:center; gap:15px; padding:15px; border-radius:12px; font-size:1.1rem; font-weight:bold; color:var(--text-dark); background:#f8fafc; border:1px solid var(--border-color); cursor:pointer; transition:0.2s; margin-bottom:10px; }
          .menu-item:active { transform:scale(0.98); background:#edf2f7; }
          .menu-item .icon { font-size:1.6rem; width:35px; text-align:center; display:flex; align-items:center; justify-content:center; }
@@ -172,7 +188,6 @@
           .alert-item { background-color: #fff5f5; border-right: 4px solid var(--danger); padding: 12px; margin-bottom: 12px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; display: flex; justify-content: space-between; align-items: center;}
          .btn-dismiss-alert { background: none; border: none; font-size: 1.2rem; color: var(--text-muted); cursor: pointer; }
          
-         /* إعادة السايد بار للعرض الأصلي 90% للحفاظ على الفارق الجانبي الأنيق ومنع تغطية كامل الشاشة */
          .sidebar {
              position: fixed; top: 0; right: -100%; width: 88%; max-width: 400px; height: 100%;
              background: #ffffff !important; z-index: 7000; box-shadow: -5px 0 25px rgba(0,0,0,0.2);
@@ -239,11 +254,14 @@
              <button class="btn-action-top" type="button" onclick="window.openOverlay('mainMenuSidebar', true)" title="القائمة الرئيسية">☰</button>
              <h2 style="color: var(--primary); font-size: 1.4rem; font-weight:900; margin:0;">إدارة السيارات</h2>
          </div>
+         
          <div class="car-grid" id="carGrid"></div>
           
-         <div style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-bottom: 8px; font-weight: bold;">
+         <!-- تلميح التعديل والحذف يظهر ويختفي برمجياً -->
+         <div id="longPressHint" style="display: none; font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-bottom: 8px; font-weight: bold;">
              💡 ملاحظة: اضغط مطولاً على السيارة للتعديل أو الحذف
          </div>
+
          <div class="prayer-box">
              <div class="prayer-title">دعاء السفر 🤲</div>
              <div class="prayer-text">"الله أكبر، الله أكبر، سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ<br>وَإِنَّا إِلَىٰ رَبِّنَا لَمُنقَلِبُونَ"</div>
@@ -269,8 +287,9 @@
              <input type="hidden" id="editCarId">
              <div class="form-group">
                  <label>المركبة: رقم اللوحة والموديل (مطلوب)</label>
-                 <div style="display:flex; gap:10px;">
-                     <input type="text" id="carPlate" placeholder="اللوحة" style="flex:1;" required>
+                 <div style="display:flex; gap:5px;">
+                     <input type="text" id="carPlate" placeholder="اللوحة/الاسم" style="flex:1;" required>
+                     <button type="button" onclick="window.pickContactForCar()" style="padding:10px; border-radius:8px; background:#edf2f7; border:1px solid var(--border-color); cursor:pointer;" title="إضافة من سجل الهاتف">👤</button>
                      <input type="text" id="carDesc" placeholder="الموديل" style="flex:1;">
                  </div>
              </div>
@@ -437,12 +456,12 @@
                  </div>
                  <div class="form-group"><label>الوصف / الملاحظات (القطعة)</label><input type="text" id="serviceDesc" placeholder="مثال: تيل فرامل أمامي" required></div>
                  
-                 <!-- حقل اسم الورشة مع زر اختيار سريع ومرن -->
                  <div class="form-group">
                      <label>المكان (اسم المركز أو الورشة)</label>
                      <div style="display:flex; gap:8px;">
                          <input type="text" id="serviceLocation" placeholder="اكتب اسم الورشة مباشرة..." style="flex:1;">
                          <button type="button" onclick="window.openWorkshopSelectModal()" style="padding:0 12px; background:#edf2f7; border:1px solid var(--border-color); border-radius:8px; font-weight:bold; cursor:pointer; color:var(--primary);">📋 الورش</button>
+                         <button type="button" onclick="window.open('https://maps.google.com', '_blank')" style="padding:10px; border-radius:8px; background:#edf2f7; border:1px solid var(--border-color); cursor:pointer;" title="فتح الخرائط">🗺️</button>
                      </div>
                  </div>
 
@@ -579,14 +598,12 @@
                  ☁️ رفع التسجيلات (حفظ احتياطي)
              </button>
              
-             <!-- زر استيراد شيت إكسل المضاف حديثاً -->
              <button type="button" onclick="document.getElementById('excelFileInput').click()"
                  style="width:100%; background:#2b6cb0; color:white; border:none; border-radius:10px; padding:11px 10px; margin:0 0 6px; font-weight:800; font-size:0.9rem; cursor:pointer;">
                  📥 استيراد بيانات من شيت إكسل
              </button>
              <input type="file" id="excelFileInput" accept=".xls,.xlsx" style="display:none;" onchange="window.importLogsFromExcel(this)">
 
-             <!-- زر تصدير الإكسل -->
              <button type="button" onclick="window.exportLogsToExcel()"
                  style="width:100%; background:var(--accent); color:white; border:none; border-radius:10px; padding:11px 10px; margin:0 0 6px; font-weight:800; font-size:0.9rem; cursor:pointer;">
                  📊 تصدير شيت إكسل (للفترة المحددة)
@@ -613,7 +630,6 @@
                  <input type="text" id="emgSearchInput" placeholder="بحث بالاسم أو البيان..." oninput="window.renderEmergencyContacts()" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--border-color); outline:none;">
              </div>
              
-             <!-- إدخال يدوي 100% دون أي أزرار استيراد تسبب أخطاء بالنظام -->
              <button class="btn-submit" type="button" id="btnToggleEmgForm" onclick="window.toggleEmergencyForm()" style="background:#edf2f7; color:var(--primary); border:1px dashed var(--primary); margin-bottom:15px; padding:10px; box-shadow:none;">➕ إضافة جهة جديدة</button>
              
              <div id="emergencyFormContainer" style="display:none; background:#f8fafc; padding:15px; border-radius:10px; border:1px solid var(--border-color); margin-bottom:15px;">
@@ -626,7 +642,10 @@
                  </div>
                  <div class="form-group"><input type="text" id="emgTitle" placeholder="بيان الورشة (مثال: مركز العفشة)"></div>
                  <div class="form-group"><input type="text" id="emgName" placeholder="اسم صاحب الورشة / الفني"></div>
-                 <div class="form-group"><input type="text" id="emgAddress" placeholder="العنوان"></div>
+                 <div class="form-group" style="display:flex; gap:5px;">
+                     <input type="text" id="emgAddress" placeholder="العنوان" style="flex:1;">
+                     <button type="button" onclick="window.open('https://maps.google.com', '_blank')" style="padding:10px; border-radius:8px; background:#edf2f7; border:1px solid var(--border-color); cursor:pointer;" title="فتح الخرائط">🗺️</button>
+                 </div>
                  <div class="form-group" style="display:flex; gap:10px;">
                      <input type="tel" id="emgPhone" placeholder="رقم الهاتف 1" dir="ltr" style="flex:1; text-align: left;">
                      <input type="tel" id="emgPhone2" placeholder="رقم الهاتف 2 (اختياري)" dir="ltr" style="flex:1; text-align: left;">
@@ -910,7 +929,6 @@
              if(!user) { if(!silent) alert('يجب تسجيل الدخول أولاً!'); return; }
              if(window.isSyncing) return;
 
-             // حماية أمان: منع رفع بيانات فارغة تمسح النسخة السحابية
              var state = JSON.parse(localStorage.getItem(APP_STATE_KEY) || '{"cars":[]}');
              if (!state.cars || state.cars.length === 0) {
                  if(!silent) alert('⚠️ تنبيه أمان: لا توجد سيارات أو بيانات مسجلة محلياً! تم إيقاف الرفع لمنع مسح بياناتك السابقة.');
@@ -1044,7 +1062,6 @@
              }, 10); 
          };
 
-         // دالة استيراد السجلات من ملف إكسل XLS / HTML المُصدّر مسبقاً
          window.importLogsFromExcel = function(input) {
              if (!window.activeCarId) {
                  alert('يرجى فتح السيارة أولاً لاستيراد البيانات إليها.');
@@ -1159,7 +1176,6 @@
              document.getElementById('workshopSelectModal').style.display = 'flex';
          };
 
-         // --- Emergency Contacts Logic ---
          window.toggleEmergencyForm = function() {
              var form = document.getElementById('emergencyFormContainer');
              var btn = document.getElementById('btnToggleEmgForm');
@@ -1292,7 +1308,6 @@
              }
          };
 
-         // --- إدارة الوقود ---
          window.currentFuels = [];
          window.initFuelSettings = function() {
              var data = JSON.parse(localStorage.getItem(GLOBAL_SETTINGS_KEY) || '{}');
@@ -1647,7 +1662,6 @@
               window.requestExitApp();
          });
 
-          // تفعيل السحب اليميني لفتح السجل
           window.setupSwipeGesture = function() {
              var touchstartX = 0;
              var touchendX = 0;
@@ -1802,9 +1816,12 @@
           window.renderLandingScreen = function() {
              var state = JSON.parse(localStorage.getItem(APP_STATE_KEY));
              var grid = document.getElementById('carGrid');
+             var hint = document.getElementById('longPressHint');
              if(!grid) return;
              grid.innerHTML = '';
+             
              if (state && state.cars && state.cars.length > 0) {
+                 if(hint) hint.style.display = 'block'; // إظهار التلميح فقط إذا وجدت سيارات
                  grid.className = state.cars.length === 1 ? 'car-grid single-car-mode' : 'car-grid multi-car-mode';
                  for(var i=0; i<state.cars.length; i++) {
                      var car = state.cars[i];
@@ -1835,6 +1852,15 @@
                              actionFooterHtml +
                          '</div>';
                  }
+             } else {
+                 if(hint) hint.style.display = 'none'; // إخفاء التلميح
+                 grid.className = 'car-grid single-car-mode';
+                 // رسم زر الإضافة الكبير في حال عدم وجود أي سيارة
+                 grid.innerHTML = '<div id="emptyCarsPlus" onclick="window.openCarFormSidebar(null)">' +
+                     '<div class="empty-plus">+</div>' +
+                     '<div class="empty-title">إضافة سيارة جديدة</div>' +
+                     '<div class="empty-sub">اضغط هنا لتسجيل بيانات السيارة</div>' +
+                     '</div>';
              }
          };
          
