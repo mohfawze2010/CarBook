@@ -223,6 +223,9 @@
              <div class="menu-item" onclick="window.swapOverlay('emergencyModal', true)">
                  <div class="icon">🆘</div><div>أرقام الورش والطوارئ</div>
              </div>
+             <div class="menu-item" onclick="if(window.activeCarId){window.swapOverlay('customAlertsSidebar', true);}else{alert('يرجى فتح سيارة أولاً لإدارة التنبيهات المخصصة لها.');}">
+                 <div class="icon">⏰</div><div>التنبيهات المخصصة</div>
+             </div>
              <div class="menu-item" onclick="window.updateSyncInfo(); window.swapOverlay('syncModal', false)">
                  <div class="icon"><svg viewBox="0 0 24 24" width="28" height="28" fill="#007bff" style="vertical-align: middle;"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg></div><div>رفع واسترجاع البيانات</div>
              </div>
@@ -239,11 +242,18 @@
              <button class="btn-action-top" type="button" onclick="window.openOverlay('mainMenuSidebar', true)" title="القائمة الرئيسية">☰</button>
              <h2 style="color: var(--primary); font-size: 1.4rem; font-weight:900; margin:0;">إدارة السيارات</h2>
          </div>
+         
+         <div id="noCarContainer" style="display:none; flex-direction:column; align-items:center; justify-content:center; padding: 40px 20px; text-align:center;">
+             <button type="button" onclick="window.swapOverlay('carFormSidebar', true)" style="background:var(--primary); color:white; width:70px; height:70px; border-radius:50%; font-size:2.2rem; border:none; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.2); margin-bottom:15px; display:flex; justify-content:center; align-items:center;">➕</button>
+             <p style="color:var(--text-muted); font-weight:bold; font-size:1.1rem;">أضف سيارة لتسجيل قراءاتك</p>
+         </div>
+
          <div class="car-grid" id="carGrid"></div>
           
-         <div style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-bottom: 8px; font-weight: bold;">
+         <div id="carEditNote" style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-bottom: 8px; font-weight: bold; display:none;">
              💡 ملاحظة: اضغط مطولاً على السيارة للتعديل أو الحذف
          </div>
+         
          <div class="prayer-box">
              <div class="prayer-title">دعاء السفر 🤲</div>
              <div class="prayer-text">"الله أكبر، الله أكبر، سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ<br>وَإِنَّا إِلَىٰ رَبِّنَا لَمُنقَلِبُونَ"</div>
@@ -346,6 +356,32 @@
          </div>
      </div>
 
+     <!-- ================= CUSTOM ALERTS SIDEBAR ================= -->
+     <div id="customAlertsSidebar" class="sidebar">
+         <div class="sidebar-header">
+             <h2 style="font-size: 1.2rem; margin:0;">⏰ التنبيهات المخصصة</h2>
+             <button class="btn-close-sidebar" type="button" onclick="window.closeOverlay()">✖</button>
+         </div>
+         <div class="sidebar-content">
+             <div style="background:#f8fafc; padding:15px; border-radius:10px; border:1px solid var(--border-color); margin-bottom:15px;">
+                 <h4 style="font-size:0.95rem; margin-bottom:12px; color: var(--primary);">إضافة تنبيه جديد</h4>
+                 <div class="form-group"><input type="text" id="alertTitle" placeholder="عنوان التنبيه (مثال: تجديد تأمين)"></div>
+                 <div class="form-group">
+                     <select id="alertType" onchange="window.toggleAlertFields()">
+                         <option value="date">بالتاريخ فقط 📅</option>
+                         <option value="odo">بالعداد فقط ⏱️</option>
+                         <option value="both">بالتاريخ والعداد 📅⏱️</option>
+                     </select>
+                 </div>
+                 <div class="form-group" id="alertDateGroup"><label>تاريخ التنبيه</label><input type="date" id="alertDate"></div>
+                 <div class="form-group" id="alertOdoGroup" style="display:none;"><label>عند وصول العداد إلى (كم)</label><input type="number" id="alertOdo" placeholder="مثال: 150000"></div>
+                 <button class="btn-submit" type="button" onclick="window.saveCustomAlert()" style="padding:10px; font-size:1rem; margin-top:5px;">حفظ التنبيه</button>
+             </div>
+             <h3 class="section-title" style="font-size:1rem;">التنبيهات الحالية</h3>
+             <div id="customAlertsList" style="overflow-y: auto;"></div>
+         </div>
+     </div>
+
      <!-- ================= APP SCREEN ================= -->
      <div id="appScreen" style="display: none;">
          <header class="app-header">
@@ -416,7 +452,13 @@
                          <input type="number" id="fuelOdometer" placeholder="مثال: 125000" required>
                      </div>
                  </div>
-                 <div class="form-group"><label>المكان (اسم المحطة)</label><input type="text" id="fuelLocation" placeholder="مثال: وطنية، شل، موبيل..."></div>
+                 <div class="form-group">
+                     <label>المكان (اسم المحطة)</label>
+                     <div style="display:flex; gap:8px;">
+                         <input type="text" id="fuelLocation" placeholder="مثال: وطنية، شل، موبيل..." style="flex:1;">
+                         <button type="button" onclick="window.openTargetSelectModal('fuelLocation')" style="padding:0 12px; background:#edf2f7; border:1px solid var(--border-color); border-radius:8px; font-weight:bold; cursor:pointer; color:var(--primary);">📋 المحطات</button>
+                     </div>
+                 </div>
                  <button type="submit" class="btn-submit" id="btnFuelSubmit">حفظ سجل الوقود</button>
              </form>
          </div>
@@ -442,7 +484,7 @@
                      <label>المكان (اسم المركز أو الورشة)</label>
                      <div style="display:flex; gap:8px;">
                          <input type="text" id="serviceLocation" placeholder="اكتب اسم الورشة مباشرة..." style="flex:1;">
-                         <button type="button" onclick="window.openWorkshopSelectModal()" style="padding:0 12px; background:#edf2f7; border:1px solid var(--border-color); border-radius:8px; font-weight:bold; cursor:pointer; color:var(--primary);">📋 الورش</button>
+                         <button type="button" onclick="window.openTargetSelectModal('serviceLocation')" style="padding:0 12px; background:#edf2f7; border:1px solid var(--border-color); border-radius:8px; font-weight:bold; cursor:pointer; color:var(--primary);">📋 الورش</button>
                      </div>
                  </div>
 
@@ -531,15 +573,15 @@
                  <div class="kpi-card"><div class="kpi-circle" style="background-color: #805ad5;">💸</div><div class="kpi-info"><h4>تكلفة الكيلومتر</h4><p id="kpiCostPerKm">-</p></div></div>
                  <div class="kpi-card"><div class="kpi-circle" style="background-color: #ed8936;">🛣️</div><div class="kpi-info"><h4>مسافة الفترة</h4><p id="kpiPeriodDistance">0 كم</p></div></div>
                  <div class="kpi-card"><div class="kpi-circle" style="background-color: #38b2ac;">📊</div><div class="kpi-info"><h4>الاستهلاك (للفترة)</h4><p id="kpiConsumption">0 كم/لتر</p></div></div>
-                 <div class="kpi-card full-width"><div class="kpi-circle" style="background-color: var(--success);">📈</div><div class="kpi-info"><h4>آخر قراءة للعداد (عام)</h4><p id="kpiLastOdo">0 كم</p></div></div>
+                 <div class="kpi-card full-width"><div class="kpi-circle" style="background-color: var(--success);">📈</div><div class="kpi-info"><h4>آخر قراءة للعداد (عام)</h4><p id="kpiLastOdo">0 كم</p><p id="kpiLastOdoDetails" style="font-size:0.75rem; color:var(--text-muted); margin-top:4px; font-weight:normal; line-height: 1.4;"></p></div></div>
              </div>
          </div>
      </div>
 
-     <!-- نافذة اختيار الورش -->
+     <!-- نافذة اختيار الورش والمحطات -->
      <div id="workshopSelectModal" class="modal-overlay">
          <div class="modal-content" style="max-height: 80vh; display:flex; flex-direction:column;">
-             <h3 class="section-title">🔧 اختر ورشة مسجلة</h3>
+             <h3 class="section-title" id="workshopModalTitle">📋 اختر من السجل</h3>
              <div id="workshopListModalContainer" style="overflow-y:auto; flex:1; margin-bottom:10px;"></div>
              <button class="btn-close" type="button" onclick="document.getElementById('workshopSelectModal').style.display='none'">إلغاء</button>
          </div>
@@ -570,7 +612,7 @@
              </div>
 
              <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                 <p style="font-size:0.75rem; color:var(--text-muted); margin:0;">انقر مرتين للتعديل أو العرض 👆👆</p>
+                 <p style="font-size:0.75rem; color:var(--text-muted); margin:0;">اضغط مرتين للتعديل فى السجل اعلى القراءات 👇</p>
                  <button type="button" onclick="window.clearLogFilters()" style="background:var(--danger); color:white; border:none; padding:5px 10px; border-radius:6px; font-size:0.75rem; cursor:pointer; font-weight:bold;">إلغاء الفلتر ✖</button>
              </div>
              
@@ -622,6 +664,7 @@
                      <select id="emgCategory">
                          <option value="طوارئ">طوارئ 🆘</option>
                          <option value="مراكز صيانة">مراكز صيانة 🔧</option>
+                         <option value="محطات وقود">محطات وقود ⛽</option>
                      </select>
                  </div>
                  <div class="form-group"><input type="text" id="emgTitle" placeholder="بيان الورشة (مثال: مركز العفشة)"></div>
@@ -760,7 +803,7 @@
      
      <div id="alertsModal" class="modal-overlay">
          <div class="modal-content">
-             <h3 class="section-title" style="color: var(--danger);">🔔 تنبيهات الصيانة والرخص</h3>
+             <h3 class="section-title" style="color: var(--danger);">🔔 التنبيهات والأحداث</h3>
              <div id="alertsContent"></div>
              <button class="btn-close" type="button" onclick="window.restoreAlerts()" style="background:#edf2f7; color:var(--primary); margin-bottom:10px;">🔄 استعادة التنبيهات المخفية</button>
              <button class="btn-close" type="button" onclick="window.closeOverlay()">إغلاق النافذة</button>
@@ -925,7 +968,7 @@
              var backup = {};
              for(var i=0; i<localStorage.length; i++) {
                  var k = localStorage.key(i);
-                 if(k === APP_STATE_KEY || k === GLOBAL_SETTINGS_KEY || k === 'car_emergency_contacts' || k.startsWith('car_logs_') || k.startsWith('car_mydata_') || k.startsWith('dismissed_alerts_')) {
+                 if(k === APP_STATE_KEY || k === GLOBAL_SETTINGS_KEY || k === 'car_emergency_contacts' || k.startsWith('car_logs_') || k.startsWith('car_mydata_') || k.startsWith('dismissed_alerts_') || k.startsWith('car_custom_alerts_')) {
                      backup[k] = localStorage.getItem(k);
                  }
              }
@@ -983,7 +1026,7 @@
                      var keysToRemove = [];
                      for(var i=0; i<localStorage.length; i++) {
                          var k = localStorage.key(i);
-                         if(k === APP_STATE_KEY || k === GLOBAL_SETTINGS_KEY || k === 'car_emergency_contacts' || k.startsWith('car_logs_') || k.startsWith('car_mydata_') || k.startsWith('dismissed_alerts_')) {
+                         if(k === APP_STATE_KEY || k === GLOBAL_SETTINGS_KEY || k === 'car_emergency_contacts' || k.startsWith('car_logs_') || k.startsWith('car_mydata_') || k.startsWith('dismissed_alerts_') || k.startsWith('car_custom_alerts_')) {
                              keysToRemove.push(k);
                          }
                      }
@@ -1044,7 +1087,6 @@
              }, 10); 
          };
 
-         // دالة استيراد السجلات من ملف إكسل XLS / HTML المُصدّر مسبقاً
          window.importLogsFromExcel = function(input) {
              if (!window.activeCarId) {
                  alert('يرجى فتح السيارة أولاً لاستيراد البيانات إليها.');
@@ -1132,25 +1174,34 @@
              reader.readAsText(file, 'UTF-8');
          };
 
-         window.openWorkshopSelectModal = function() {
+         // دالة موحدة لاختيار الورش والمحطات
+         window.openTargetSelectModal = function(targetId) {
              var contacts = JSON.parse(localStorage.getItem('car_emergency_contacts') || '[]');
              var container = document.getElementById('workshopListModalContainer');
+             var titleEl = document.getElementById('workshopModalTitle');
+             if(titleEl) {
+                 titleEl.innerText = targetId === 'fuelLocation' ? '⛽ اختر محطة مسجلة' : '🔧 اختر ورشة مسجلة';
+             }
              container.innerHTML = '';
              
              var set = new Set();
              contacts.forEach(function(c) {
-                 if(c.title && c.title.trim()) set.add(c.title.trim());
+                 if(c.title && c.title.trim()) {
+                     // تصفية اختيارية أو جلب الكل
+                     if(targetId === 'fuelLocation' && c.category === 'محطات وقود') set.add(c.title.trim());
+                     else if(targetId !== 'fuelLocation' && c.category !== 'محطات وقود') set.add(c.title.trim());
+                 }
              });
              
              if (set.size === 0) {
-                 container.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding:15px;">لا توجد ورش مسجلة في سجل الطوارئ بعد.</p>';
+                 container.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding:15px;">لا توجد جهات مسجلة ضمن هذه الفئة في السجل بعد.</p>';
              } else {
                  set.forEach(function(wName) {
                      var item = document.createElement('div');
                      item.style.cssText = 'padding:14px; border-bottom:1px solid #e2e8f0; font-weight:bold; cursor:pointer; font-size:0.95rem; color:var(--primary);';
-                     item.innerText = '🔧 ' + wName;
+                     item.innerText = '📋 ' + wName;
                      item.onclick = function() {
-                         document.getElementById('serviceLocation').value = wName;
+                         document.getElementById(targetId).value = wName;
                          document.getElementById('workshopSelectModal').style.display = 'none';
                      };
                      container.appendChild(item);
@@ -1200,7 +1251,7 @@
                  }
                  matchCount++;
                  
-                 var catIcon = c.category === 'طوارئ' ? '🆘' : '🔧';
+                 var catIcon = c.category === 'طوارئ' ? '🆘' : (c.category === 'محطات وقود' ? '⛽' : '🔧');
                  var phonesHtml = '<a href="tel:' + c.phone + '" style="flex:1; text-align:center; background:var(--success); color:white; text-decoration:none; padding:8px; border-radius:8px; font-weight:bold; font-size:0.9rem;">📞 1: <span dir="ltr">' + c.phone + '</span></a>';
                  if(c.phone2) {
                      phonesHtml += '<a href="tel:' + c.phone2 + '" style="flex:1; text-align:center; background:var(--accent); color:white; text-decoration:none; padding:8px; border-radius:8px; font-weight:bold; font-size:0.9rem;">📞 2: <span dir="ltr">' + c.phone2 + '</span></a>';
@@ -1256,7 +1307,7 @@
              var address = document.getElementById('emgAddress').value.trim();
              var phone = document.getElementById('emgPhone').value.trim();
              var phone2 = document.getElementById('emgPhone2').value.trim();
-             if(!title || !phone) { alert('يرجى إدخال بيان الورشة ورقم الهاتف 1 على الأقل.'); return; }
+             if(!title || !phone) { alert('يرجى إدخال بيان الجهة ورقم الهاتف 1 على الأقل.'); return; }
              
              var contacts = JSON.parse(localStorage.getItem('car_emergency_contacts') || '[]');
              var newData = {category: cat, title: title, name: name, address: address, phone: phone, phone2: phone2};
@@ -1560,6 +1611,7 @@
                  }
                  window.renderEmergencyContacts();
              }
+             if(id === 'customAlertsSidebar') window.renderCustomAlerts();
              if(id === 'globalSettingsModal') window.initFuelSettings(); 
              if(id === 'alertsModal') window.renderAlertsModal();
              if(id === 'logsSidebar') window.renderLogsSidebar();
@@ -1751,6 +1803,61 @@
              checkDate(data.vlExpiry, 'رخصة السيارة');
              return alerts;
          };
+
+          // دوال إدارة التنبيهات المخصصة
+          window.toggleAlertFields = function() {
+             var type = document.getElementById('alertType').value;
+             document.getElementById('alertDateGroup').style.display = (type === 'date' || type === 'both') ? 'block' : 'none';
+             document.getElementById('alertOdoGroup').style.display = (type === 'odo' || type === 'both') ? 'block' : 'none';
+         };
+
+         window.saveCustomAlert = function() {
+             if(!window.activeCarId) { alert('يرجى فتح سيارة أولاً.'); return; }
+             var title = document.getElementById('alertTitle').value.trim();
+             var type = document.getElementById('alertType').value;
+             var aDate = document.getElementById('alertDate').value;
+             var aOdo = document.getElementById('alertOdo').value;
+
+             if(!title) { alert('أدخل عنوان التنبيه.'); return; }
+             if((type === 'date' || type === 'both') && !aDate) { alert('أدخل التاريخ.'); return; }
+             if((type === 'odo' || type === 'both') && !aOdo) { alert('أدخل قراءة العداد.'); return; }
+
+             var alerts = JSON.parse(localStorage.getItem('car_custom_alerts_' + window.activeCarId) || '[]');
+             alerts.push({ id: Date.now().toString(), title: title, type: type, date: aDate, odo: aOdo });
+             localStorage.setItem('car_custom_alerts_' + window.activeCarId, JSON.stringify(alerts));
+
+             document.getElementById('alertTitle').value = '';
+             document.getElementById('alertDate').value = '';
+             document.getElementById('alertOdo').value = '';
+             window.renderCustomAlerts();
+             window.updateDashboard();
+         };
+
+         window.renderCustomAlerts = function() {
+             if(!window.activeCarId) return;
+             var alerts = JSON.parse(localStorage.getItem('car_custom_alerts_' + window.activeCarId) || '[]');
+             var html = '';
+             for(var i=0; i<alerts.length; i++) {
+                 var a = alerts[i];
+                 var info = [];
+                 if(a.type === 'date' || a.type === 'both') info.push('📅 ' + a.date);
+                 if(a.type === 'odo' || a.type === 'both') info.push('⏱️ ' + a.odo + ' كم');
+                 html += '<div style="background:white; border:1px solid var(--border-color); border-radius:8px; padding:10px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">' +
+                     '<div><strong style="color:var(--primary); font-size:0.95rem;">' + a.title + '</strong><div style="font-size:0.8rem; color:var(--text-muted);">' + info.join(' | ') + '</div></div>' +
+                     '<button onclick="window.deleteCustomAlert(\'' + a.id + '\')" style="background:none; border:none; color:var(--danger); font-size:1.2rem; cursor:pointer;">✖</button>' +
+                 '</div>';
+             }
+             if(html === '') html = '<p style="text-align:center; color:var(--text-muted); font-size:0.85rem;">لا توجد تنبيهات مخصصة.</p>';
+             document.getElementById('customAlertsList').innerHTML = html;
+         };
+
+         window.deleteCustomAlert = function(id) {
+             var alerts = JSON.parse(localStorage.getItem('car_custom_alerts_' + window.activeCarId) || '[]');
+             alerts = alerts.filter(function(a) { return a.id !== id; });
+             localStorage.setItem('car_custom_alerts_' + window.activeCarId, JSON.stringify(alerts));
+             window.renderCustomAlerts();
+             window.updateDashboard();
+         };
          
           window.checkAlertsCountForCar = function(carId) {
              var logs = JSON.parse(localStorage.getItem('car_logs_' + carId) || '[]');
@@ -1796,15 +1903,40 @@
              for(var a=0; a<licAlerts.length; a++) {
                  if(dismissed.indexOf(licAlerts[a].id) === -1) alertCount++;
              }
+
+             // حساب التنبيهات المخصصة
+             var customAlerts = JSON.parse(localStorage.getItem('car_custom_alerts_' + carId) || '[]');
+             var today = new Date(); today.setHours(0,0,0,0);
+             for(var c=0; c<customAlerts.length; c++) {
+                 var ca = customAlerts[c];
+                 if(dismissed.indexOf('custom_' + ca.id) !== -1) continue;
+                 var triggered = false;
+                 if(ca.type === 'date' || ca.type === 'both') {
+                     if(ca.date && new Date(ca.date) <= today) triggered = true;
+                 }
+                 if(ca.type === 'odo' || ca.type === 'both') {
+                     if(ca.odo && maxOdo >= parseInt(ca.odo)) triggered = true;
+                 }
+                 if(triggered) alertCount++;
+             }
+
              return alertCount;
          };
           
           window.renderLandingScreen = function() {
              var state = JSON.parse(localStorage.getItem(APP_STATE_KEY));
              var grid = document.getElementById('carGrid');
+             var noCarContainer = document.getElementById('noCarContainer');
+             var carEditNote = document.getElementById('carEditNote');
+             
              if(!grid) return;
              grid.innerHTML = '';
+             
              if (state && state.cars && state.cars.length > 0) {
+                 grid.style.display = 'grid';
+                 if(noCarContainer) noCarContainer.style.display = 'none';
+                 if(carEditNote) carEditNote.style.display = 'block';
+                 
                  grid.className = state.cars.length === 1 ? 'car-grid single-car-mode' : 'car-grid multi-car-mode';
                  for(var i=0; i<state.cars.length; i++) {
                      var car = state.cars[i];
@@ -1835,6 +1967,10 @@
                              actionFooterHtml +
                          '</div>';
                  }
+             } else {
+                 grid.style.display = 'none';
+                 if(noCarContainer) noCarContainer.style.display = 'flex';
+                 if(carEditNote) carEditNote.style.display = 'none';
              }
          };
          
@@ -1907,7 +2043,7 @@
          };
           window.deleteCarConfirmed = function(id) {
              var state = JSON.parse(localStorage.getItem(APP_STATE_KEY));
-             localStorage.removeItem('car_logs_' + id); localStorage.removeItem('car_mydata_' + id); localStorage.removeItem('dismissed_alerts_' + id);
+             localStorage.removeItem('car_logs_' + id); localStorage.removeItem('car_mydata_' + id); localStorage.removeItem('dismissed_alerts_' + id); localStorage.removeItem('car_custom_alerts_' + id);
              var newCars = [];
              for(var i=0; i<state.cars.length; i++) { if(state.cars[i].id !== id) newCars.push(state.cars[i]); }
              state.cars = newCars;
@@ -2361,6 +2497,30 @@
                  }
              }
 
+             // إضافة التنبيهات المخصصة
+             var customAlerts = JSON.parse(localStorage.getItem('car_custom_alerts_' + activeCarId) || '[]');
+             var today = new Date(); today.setHours(0,0,0,0);
+             for(var c=0; c<customAlerts.length; c++) {
+                 var ca = customAlerts[c];
+                 var cId = 'custom_' + ca.id;
+                 if(dismissed.indexOf(cId) === -1) {
+                     var triggered = false;
+                     var triggerReason = '';
+                     if(ca.type === 'date' || ca.type === 'both') {
+                         if(ca.date && new Date(ca.date) <= today) { triggered = true; triggerReason += 'تاريخ الاستحقاق ('+ca.date+') '; }
+                     }
+                     if(ca.type === 'odo' || ca.type === 'both') {
+                         if(ca.odo && maxOdo >= parseInt(ca.odo)) { triggered = true; triggerReason += 'تخطي العداد ('+ca.odo+' كم) '; }
+                     }
+                     if(triggered) {
+                         alertCount++;
+                         alertsHtml += '<div class="alert-item" style="display:flex; justify-content:space-between; align-items:center; background-color: #fffaf0; border-right: 4px solid var(--warning);">' +
+                             '<div>⏰ <strong>' + ca.title + '</strong> <br><small style="color:var(--text-muted);">' + triggerReason + '</small></div>' +
+                             '<button class="btn-dismiss-alert" onclick="window.dismissAlert(\'' + cId + '\')" title="إخفاء التنبيه">✖</button></div>';
+                     }
+                 }
+             }
+
              var badge = document.getElementById('notifCount');
              if(alertCount > 0) { badge.innerText = alertCount; badge.style.display = 'block'; } else { badge.style.display = 'none'; }
              if(alertsHtml === '') alertsHtml = '<p style="text-align:center; color:var(--text-muted);">لا توجد تنبيهات حالياً.</p>';
@@ -2415,8 +2575,17 @@
              var alertCount = window.checkAlertsCountForCar(activeCarId);
              var badge = document.getElementById('notifCount');
              if(alertCount > 0) { badge.innerText = alertCount; badge.style.display = 'inline-block'; } else { badge.style.display = 'none'; }
+             
              var absoluteMaxOdo = 0;
-             for(var m=0; m<allLogs.length; m++) { if (allLogs[m].odometer && parseInt(allLogs[m].odometer) > absoluteMaxOdo) absoluteMaxOdo = parseInt(allLogs[m].odometer); }
+             var maxOdoLog = null;
+             
+             for(var m=0; m<allLogs.length; m++) { 
+                 if (allLogs[m].odometer && parseInt(allLogs[m].odometer) > absoluteMaxOdo) {
+                     absoluteMaxOdo = parseInt(allLogs[m].odometer); 
+                     maxOdoLog = allLogs[m];
+                 }
+             }
+             
              var filteredLogs = [];
              var filterStartEl = document.getElementById('filterStartDate'); var filterEndEl = document.getElementById('filterEndDate');
              var startDateStr = filterStartEl ? filterStartEl.value : null; var endDateStr = filterEndEl ? filterEndEl.value : null;
@@ -2466,7 +2635,19 @@
              var elFuel = document.getElementById('kpiFuelCost'); if(elFuel) elFuel.innerText = fuelCost + ' ج.م';
              var elServ = document.getElementById('kpiServiceCost'); if(elServ) elServ.innerText = serviceCost + ' ج.م';
              var elOth = document.getElementById('kpiOtherCost'); if(elOth) elOth.innerText = otherCost + ' ج.م';
-             var elOdo = document.getElementById('kpiLastOdo'); if(elOdo) elOdo.innerText = absoluteMaxOdo + ' كم';
+             
+             var elOdo = document.getElementById('kpiLastOdo'); 
+             if(elOdo) elOdo.innerText = absoluteMaxOdo > 0 ? absoluteMaxOdo + ' كم' : '0 كم';
+             var elOdoDetails = document.getElementById('kpiLastOdoDetails');
+             if(elOdoDetails) {
+                 if(maxOdoLog) {
+                     var logSub = maxOdoLog.type === 'صيانة' ? maxOdoLog.serviceCategory : maxOdoLog.desc;
+                     elOdoDetails.innerText = 'القسم: ' + maxOdoLog.type + ' (' + logSub + ') \n التاريخ: ' + maxOdoLog.date;
+                 } else {
+                     elOdoDetails.innerText = '';
+                 }
+             }
+             
              var elCons = document.getElementById('kpiConsumption'); if(elCons) elCons.innerText = consumptionRate > 0 ? (consumptionRate + ' كم/لتر') : '-';
              var elPeriodDist = document.getElementById('kpiPeriodDistance'); if(elPeriodDist) elPeriodDist.innerText = periodDistance > 0 ? (periodDistance + ' كم') : '0 كم';
              var elCostKm = document.getElementById('kpiCostPerKm'); if(elCostKm) elCostKm.innerText = costPerKm > 0 ? (costPerKm + ' ج.م/كم') : '-';
@@ -2664,28 +2845,6 @@
                  } catch (ex) { alert('لم يتم التحديد.'); }
              } else {
                  alert('متصفحك الحالي لا يدعم الوصول المباشر لجهات الاتصال. يرجى الإدخال يدوياً.');
-             }
-         };
-
-         window.showWorkshopPicker = function() {
-             var contacts = JSON.parse(localStorage.getItem('car_emergency_contacts') || '[]');
-             var workshops = contacts.filter(function(c) { return c.category === 'مراكز صيانة'; });
-             
-             if(workshops.length === 0) {
-                 alert('لا توجد ورش صيانة مسجلة حالياً في قسم الطوارئ والورش.');
-                 return;
-             }
-             
-             var optionsHtml = workshops.map(function(w) {
-                 return '<button type="button" style="display:block; width:100%; padding:15px; margin-bottom:10px; background:#f8fafc; border:1px solid var(--border-color); border-radius:8px; text-align:right; font-weight:bold; font-size:1rem; cursor:pointer;" onclick="document.getElementById(\'serviceLocation\').value = \'' + w.title + '\'; window.closeOverlay();">' + w.title + (w.name ? ' (' + w.name + ')' : '') + '</button>';
-             }).join('');
-             
-             var modalContent = '<div class="modal-content"><h3 class="section-title">اختر ورشة الصيانة</h3><div style="max-height: 60vh; overflow-y: auto; padding-right: 5px;">' + optionsHtml + '</div><button class="btn-close" type="button" onclick="window.closeOverlay()">إلغاء</button></div>';
-             
-             var pickerModal = document.getElementById('workshopPickerModal');
-             if(pickerModal) {
-                 pickerModal.innerHTML = modalContent;
-                 window.openOverlay('workshopPickerModal');
              }
          };
      </script> 
