@@ -68,7 +68,6 @@
          .car-card-info p { font-size: 0.8rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0; }
          .car-grid.single-car-mode .car-card-info p { font-size: 1rem; }
          
-         /* شارة التنبيهات واضحة داخل البطاقة وتظهر كاملة */
          .car-card-badge {
              position: absolute; top: 10px; right: 10px; background: var(--danger); color: white;
              font-size: 0.85rem; font-weight: 900; width: 26px; height: 26px; display: flex; justify-content: center; align-items: center; border-radius: 50%; box-shadow: 0 2px 6px rgba(0,0,0,0.3); z-index: 10; border: 2px solid white;
@@ -120,7 +119,7 @@
          .form-group input, .form-group select, .form-group textarea {
              width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.95rem; outline: none; background: #ffffff !important; color: #2d3748 !important;
          }
-         .form-group input:focus, .form-group select:focus { border-color: var(--accent); background: white !important; }
+         .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); background: white !important; }
           .input-highlight {
              background-color: #f0fff4 !important;
              border: 2px solid #38a169 !important;
@@ -172,7 +171,6 @@
           .alert-item { background-color: #fff5f5; border-right: 4px solid var(--danger); padding: 12px; margin-bottom: 12px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; display: flex; justify-content: space-between; align-items: center;}
          .btn-dismiss-alert { background: none; border: none; font-size: 1.2rem; color: var(--text-muted); cursor: pointer; }
          
-         /* إعادة السايد بار للعرض الأصلي 90% للحفاظ على الفارق الجانبي الأنيق ومنع تغطية كامل الشاشة */
          .sidebar {
              position: fixed; top: 0; right: -100%; width: 88%; max-width: 400px; height: 100%;
              background: #ffffff !important; z-index: 7000; box-shadow: -5px 0 25px rgba(0,0,0,0.2);
@@ -217,8 +215,14 @@
              <div class="menu-item" onclick="window.swapOverlay('carFormSidebar', true)">
                  <div class="icon">➕</div><div>إضافة سيارة جديدة</div>
              </div>
+             
+             <!-- تبويبة سجل الأعطال في القائمة الرئيسية -->
+             <div class="menu-item" onclick="if(window.activeCarId){window.swapOverlay('faultsSidebar', true);}else{alert('يرجى فتح سيارة أولاً للوصول لسجل الأعطال.');}">
+                 <div class="icon">⚠️</div><div>سجل الأعطال</div>
+             </div>
+             
              <div class="menu-item" onclick="window.swapOverlay('globalSettingsModal', true)">
-                 <div class="icon">⛽</div><div>أسعار الوقود</div>
+                 <div class="icon">⛽</div><div>الإعدادات (أسعار الوقود)</div>
              </div>
              <div class="menu-item" onclick="window.swapOverlay('emergencyModal', true)">
                  <div class="icon">🆘</div><div>أرقام الورش والطوارئ</div>
@@ -233,6 +237,36 @@
              <div class="menu-item" onclick="window.swapOverlay('loginModal', false)" style="border-color:var(--primary); background:var(--primary); color:white; margin-top:20px;">
                  <div class="icon">👤</div><div>الحساب وتسجيل الدخول</div>
              </div>
+         </div>
+     </div>
+
+     <!-- ================= FAULTS LOG SIDEBAR ================= -->
+     <div id="faultsSidebar" class="sidebar">
+         <div class="sidebar-header">
+             <h2 style="font-size: 1.2rem; margin:0;">⚠️ سجل الأعطال</h2>
+             <button class="btn-close-sidebar" type="button" onclick="window.closeOverlay()">✖</button>
+         </div>
+         <div class="sidebar-content">
+             <!-- زر إضافة موقف عطل -->
+             <button class="btn-submit" type="button" id="btnToggleFaultForm" onclick="window.toggleFaultForm()" style="background:#edf2f7; color:var(--primary); border:1px dashed var(--primary); margin-bottom:15px; padding:10px; box-shadow:none;">➕ إضافة موقف عطل</button>
+             
+             <!-- خانات إضافة العطل (مخفية وتظهر عند الضغط) - جميعها غير إلزامية -->
+             <div id="faultFormContainer" style="display:none; background:#f8fafc; padding:15px; border-radius:10px; border:1px solid var(--border-color); margin-bottom:15px;">
+                 <h4 style="font-size:0.95rem; margin-bottom:12px; color: var(--primary);">بيانات العطل</h4>
+                 <div class="form-group"><label>اسم العطل</label><input type="text" id="faultName" placeholder="مثال: عطل في البطارية"></div>
+                 <div class="form-group"><label>وصف العطل</label><textarea id="faultDesc" placeholder="تفاصيل وملاحظات عن العطل..." rows="2"></textarea></div>
+                 <div class="form-group"><label>التاريخ</label><input type="date" id="faultDate"></div>
+                 <div class="form-group"><label>علاج المشكلة</label><textarea id="faultSolution" placeholder="ما الذي تم لإصلاحه؟" rows="2"></textarea></div>
+                 <div class="form-group"><label>مكان المشكلة</label><input type="text" id="faultLocation" placeholder="الورشة أو المكان"></div>
+                 <button class="btn-submit" type="button" onclick="window.saveFault()" style="padding:10px; font-size:1rem; margin-top:5px;">حفظ العطل</button>
+             </div>
+             
+             <div class="form-group" style="margin-bottom: 15px;">
+                 <input type="text" id="faultSearchText" placeholder="🔍 بحث ذكي عن عطل بالاسم أو المكان..." oninput="window.renderFaults()">
+             </div>
+             
+             <h3 class="section-title" style="font-size:1rem;">الأعطال المسجلة</h3>
+             <div id="faultsList" style="overflow-y: auto;"></div>
          </div>
      </div>
 
@@ -363,7 +397,8 @@
              <button class="btn-close-sidebar" type="button" onclick="window.closeOverlay()">✖</button>
          </div>
          <div class="sidebar-content">
-             <div style="background:#f8fafc; padding:15px; border-radius:10px; border:1px solid var(--border-color); margin-bottom:15px;">
+             <button class="btn-submit" type="button" id="btnToggleCustomAlert" onclick="window.toggleCustomAlertForm()" style="background:#edf2f7; color:var(--primary); border:1px dashed var(--primary); margin-bottom:15px; padding:10px; box-shadow:none;">➕ إضافة تنبيه</button>
+             <div id="customAlertsFormContainer" style="display:none; background:#f8fafc; padding:15px; border-radius:10px; border:1px solid var(--border-color); margin-bottom:15px;">
                  <h4 style="font-size:0.95rem; margin-bottom:12px; color: var(--primary);">إضافة تنبيه جديد</h4>
                  <div class="form-group"><input type="text" id="alertTitle" placeholder="عنوان التنبيه (مثال: تجديد تأمين)"></div>
                  <div class="form-group">
@@ -377,6 +412,11 @@
                  <div class="form-group" id="alertOdoGroup" style="display:none;"><label>عند وصول العداد إلى (كم)</label><input type="number" id="alertOdo" placeholder="مثال: 150000"></div>
                  <button class="btn-submit" type="button" onclick="window.saveCustomAlert()" style="padding:10px; font-size:1rem; margin-top:5px;">حفظ التنبيه</button>
              </div>
+             
+             <div class="form-group" style="margin-bottom: 10px;">
+                 <input type="text" id="alertSearchInput" placeholder="بحث ذكي في التنبيهات..." oninput="window.renderCustomAlerts()">
+             </div>
+             
              <h3 class="section-title" style="font-size:1rem;">التنبيهات الحالية</h3>
              <div id="customAlertsList" style="overflow-y: auto;"></div>
          </div>
@@ -417,15 +457,11 @@
                  <div class="form-group"><label>المبلغ المدفوع (ج.م)</label><input type="number" id="fuelCost" class="input-highlight" required placeholder="المبلغ" oninput="window.calcLiters()"></div>
                  <div class="form-group">
                      <label>الكمية (لتر) - تُحسب تلقائياً</label>
-                     <input type="number" step="1" min="1" id="fuelLiters" required placeholder="يمكنك تعديلها يدوياً">
+                     <input type="number" step="0.01" min="0.1" id="fuelLiters" required placeholder="يمكنك تعديلها يدوياً">
                  </div>
                  <div class="form-group">
                      <label>طريقة الدفع</label>
-                     <select id="payMethod" onchange="window.toggleReceiptCam()">
-                         <option value="نقدي 💵" selected>نقدي 💵</option>
-                         <option value="فيزا 💳">فيزا 💳</option>
-                         <option value="أوكتين 📟">أوكتين 📟</option>
-                     </select>
+                     <select id="payMethod" onchange="window.toggleReceiptCam()"></select>
                  </div>
                  <div class="form-group" id="receiptCamContainer" style="display: none;">
                      <label>صورة الفاتورة / الإيصال</label>
@@ -621,14 +657,12 @@
                  ☁️ رفع التسجيلات (حفظ احتياطي)
              </button>
              
-             <!-- زر استيراد شيت إكسل المضاف حديثاً -->
              <button type="button" onclick="document.getElementById('excelFileInput').click()"
                  style="width:100%; background:#2b6cb0; color:white; border:none; border-radius:10px; padding:11px 10px; margin:0 0 6px; font-weight:800; font-size:0.9rem; cursor:pointer;">
                  📥 استيراد بيانات من شيت إكسل
              </button>
              <input type="file" id="excelFileInput" accept=".xls,.xlsx" style="display:none;" onchange="window.importLogsFromExcel(this)">
 
-             <!-- زر تصدير الإكسل -->
              <button type="button" onclick="window.exportLogsToExcel()"
                  style="width:100%; background:var(--accent); color:white; border:none; border-radius:10px; padding:11px 10px; margin:0 0 6px; font-weight:800; font-size:0.9rem; cursor:pointer;">
                  📊 تصدير شيت إكسل (للفترة المحددة)
@@ -655,7 +689,6 @@
                  <input type="text" id="emgSearchInput" placeholder="بحث بالاسم أو البيان..." oninput="window.renderEmergencyContacts()" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--border-color); outline:none;">
              </div>
              
-             <!-- إدخال يدوي 100% دون أي أزرار استيراد تسبب أخطاء بالنظام -->
              <button class="btn-submit" type="button" id="btnToggleEmgForm" onclick="window.toggleEmergencyForm()" style="background:#edf2f7; color:var(--primary); border:1px dashed var(--primary); margin-bottom:15px; padding:10px; box-shadow:none;">➕ إضافة جهة جديدة</button>
              
              <div id="emergencyFormContainer" style="display:none; background:#f8fafc; padding:15px; border-radius:10px; border:1px solid var(--border-color); margin-bottom:15px;">
@@ -790,13 +823,22 @@
 
      <div id="globalSettingsModal" class="sidebar">
          <div class="sidebar-header">
-             <h2 style="font-size: 1.2rem; margin:0;">⛽ إعدادات الوقود</h2>
+             <h2 style="font-size: 1.2rem; margin:0;">⛽ الإعدادات العامة</h2>
              <button class="btn-close-sidebar" type="button" onclick="window.closeOverlay()">✖</button>
          </div>
          <div class="sidebar-content">
-             <p style="font-size:0.85rem; color:var(--text-muted); text-align:center; margin-bottom:10px;">قم بترتيب أنواع الوقود وأسعارها</p>
+             <h3 style="font-size:1rem; margin-bottom:10px; color:var(--primary);">أنواع الوقود وأسعارها</h3>
+             <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:10px;">قم بترتيب أنواع الوقود وأسعارها</p>
              <div id="fuelSettingsContainer"></div>
              <button class="btn-submit" type="button" onclick="window.addFuelOption()" style="background:#edf2f7; color:var(--primary); border:1px dashed var(--primary); margin-bottom:15px; padding:10px; box-shadow:none;">➕ إضافة نوع وقود جديد</button>
+             
+             <hr style="border-top:1px solid var(--border-color); margin:15px 0;">
+             
+             <h3 style="font-size:1rem; margin-bottom:10px; color:var(--primary);">طرق الدفع (وسائل الدفع)</h3>
+             <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:10px;">قم بترتيب وسائل الدفع لتظهر في المقدمة</p>
+             <div id="paySettingsContainer"></div>
+             <button class="btn-submit" type="button" onclick="window.addPayOption()" style="background:#edf2f7; color:var(--primary); border:1px dashed var(--primary); margin-bottom:15px; padding:10px; box-shadow:none;">➕ إضافة طريقة دفع جديدة</button>
+
              <button class="btn-submit" type="button" onclick="window.saveGlobalSettings()">حفظ الإعدادات</button>
          </div>
      </div>
@@ -953,7 +995,6 @@
              if(!user) { if(!silent) alert('يجب تسجيل الدخول أولاً!'); return; }
              if(window.isSyncing) return;
 
-             // حماية أمان: منع رفع بيانات فارغة تمسح النسخة السحابية
              var state = JSON.parse(localStorage.getItem(APP_STATE_KEY) || '{"cars":[]}');
              if (!state.cars || state.cars.length === 0) {
                  if(!silent) alert('⚠️ تنبيه أمان: لا توجد سيارات أو بيانات مسجلة محلياً! تم إيقاف الرفع لمنع مسح بياناتك السابقة.');
@@ -968,7 +1009,7 @@
              var backup = {};
              for(var i=0; i<localStorage.length; i++) {
                  var k = localStorage.key(i);
-                 if(k === APP_STATE_KEY || k === GLOBAL_SETTINGS_KEY || k === 'car_emergency_contacts' || k.startsWith('car_logs_') || k.startsWith('car_mydata_') || k.startsWith('dismissed_alerts_') || k.startsWith('car_custom_alerts_')) {
+                 if(k === APP_STATE_KEY || k === GLOBAL_SETTINGS_KEY || k === 'car_emergency_contacts' || k.startsWith('car_logs_') || k.startsWith('car_mydata_') || k.startsWith('dismissed_alerts_') || k.startsWith('car_custom_alerts_') || k.startsWith('car_faults_')) {
                      backup[k] = localStorage.getItem(k);
                  }
              }
@@ -988,7 +1029,6 @@
                  if(btn && !silent) { btn.innerText = originalText; btn.disabled = false; }
              });
          };
-
 
          window.updateSyncInfo = function() {
              var box = document.getElementById('syncInfoBox');
@@ -1026,7 +1066,7 @@
                      var keysToRemove = [];
                      for(var i=0; i<localStorage.length; i++) {
                          var k = localStorage.key(i);
-                         if(k === APP_STATE_KEY || k === GLOBAL_SETTINGS_KEY || k === 'car_emergency_contacts' || k.startsWith('car_logs_') || k.startsWith('car_mydata_') || k.startsWith('dismissed_alerts_') || k.startsWith('car_custom_alerts_')) {
+                         if(k === APP_STATE_KEY || k === GLOBAL_SETTINGS_KEY || k === 'car_emergency_contacts' || k.startsWith('car_logs_') || k.startsWith('car_mydata_') || k.startsWith('dismissed_alerts_') || k.startsWith('car_custom_alerts_') || k.startsWith('car_faults_')) {
                              keysToRemove.push(k);
                          }
                      }
@@ -1086,6 +1126,98 @@
                  else window.openOverlay(id, isSidebar);
              }, 10); 
          };
+
+         // === كود إدارة سجل الأعطال الجديد المستقل في القائمة الرئيسية ===
+         window.toggleFaultForm = function() {
+             var form = document.getElementById('faultFormContainer');
+             var btn = document.getElementById('btnToggleFaultForm');
+             if (form.style.display === 'none') {
+                 form.style.display = 'block';
+                 btn.style.display = 'none';
+                 var falD = document.getElementById('faultDate'); 
+                 if(falD && !falD.value) falD.valueAsDate = new Date();
+             } else {
+                 form.style.display = 'none';
+                 btn.style.display = 'block';
+             }
+         };
+         
+         window.saveFault = function() {
+             if(!window.activeCarId) { alert('يرجى فتح سيارة أولاً.'); return; }
+             var name = document.getElementById('faultName').value.trim();
+             var desc = document.getElementById('faultDesc').value.trim();
+             var date = document.getElementById('faultDate').value;
+             var solution = document.getElementById('faultSolution').value.trim();
+             var loc = document.getElementById('faultLocation').value.trim();
+             
+             // البنود غير إلزامية
+             var faults = JSON.parse(localStorage.getItem('car_faults_' + window.activeCarId) || '[]');
+             faults.push({
+                 id: Date.now().toString(),
+                 name: name,
+                 desc: desc,
+                 date: date,
+                 solution: solution,
+                 location: loc
+             });
+             localStorage.setItem('car_faults_' + window.activeCarId, JSON.stringify(faults));
+             
+             document.getElementById('faultName').value = '';
+             document.getElementById('faultDesc').value = '';
+             var falD = document.getElementById('faultDate'); if(falD) falD.valueAsDate = new Date();
+             document.getElementById('faultSolution').value = '';
+             document.getElementById('faultLocation').value = '';
+             
+             window.toggleFaultForm();
+             window.renderFaults();
+         };
+         
+         window.renderFaults = function() {
+             if(!window.activeCarId) return;
+             var searchInput = document.getElementById('faultSearchText');
+             var filterText = searchInput ? searchInput.value.toLowerCase() : '';
+             
+             var faults = JSON.parse(localStorage.getItem('car_faults_' + window.activeCarId) || '[]');
+             
+             // الترتيب من الأحدث للأقدم
+             faults.sort(function(a, b) {
+                 return new Date(b.date || 0) - new Date(a.date || 0);
+             });
+             
+             var html = '';
+             var matchCount = 0;
+             for(var i=0; i<faults.length; i++) {
+                 var f = faults[i];
+                 var combined = ((f.name||'') + ' ' + (f.desc||'') + ' ' + (f.solution||'') + ' ' + (f.location||'')).toLowerCase();
+                 
+                 // البحث الذكي
+                 if(filterText && combined.indexOf(filterText) === -1) continue;
+                 
+                 matchCount++;
+                 html += '<div style="background:white; border:1px solid var(--border-color); border-radius:8px; padding:12px; margin-bottom:10px; position:relative;">' +
+                     '<button onclick="window.deleteFault(\'' + f.id + '\')" style="position:absolute; top:10px; left:10px; background:none; border:none; color:var(--danger); font-size:1.2rem; cursor:pointer;" title="حذف">✖</button>' +
+                     '<strong style="color:var(--primary); font-size:1.05rem; display:block; margin-bottom:5px;">' + (f.name || 'عطل بدون اسم') + '</strong>' +
+                     (f.date ? '<div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:8px;">📅 ' + f.date + '</div>' : '') +
+                     (f.desc ? '<div style="font-size:0.9rem; margin-bottom:4px;"><strong>الوصف:</strong> ' + f.desc + '</div>' : '') +
+                     (f.solution ? '<div style="font-size:0.9rem; color:var(--success); margin-bottom:4px;"><strong>العلاج:</strong> ' + f.solution + '</div>' : '') +
+                     (f.location ? '<div style="font-size:0.9rem;"><strong>المكان:</strong> ' + f.location + '</div>' : '') +
+                 '</div>';
+             }
+             
+             if(matchCount === 0) html = '<p style="text-align:center; color:var(--text-muted); padding:10px;">لا توجد أعطال ' + (filterText ? 'مطابقة للبحث' : 'مسجلة') + '.</p>';
+             var listEl = document.getElementById('faultsList');
+             if(listEl) listEl.innerHTML = html;
+         };
+         
+         window.deleteFault = function(id) {
+             if(confirm('هل أنت متأكد من حذف هذا العطل نهائياً؟')) {
+                 var faults = JSON.parse(localStorage.getItem('car_faults_' + window.activeCarId) || '[]');
+                 faults = faults.filter(function(f) { return f.id !== id; });
+                 localStorage.setItem('car_faults_' + window.activeCarId, JSON.stringify(faults));
+                 window.renderFaults();
+             }
+         };
+         // === نهاية كود سجل الأعطال ===
 
          window.importLogsFromExcel = function(input) {
              if (!window.activeCarId) {
@@ -1174,7 +1306,6 @@
              reader.readAsText(file, 'UTF-8');
          };
 
-         // دالة موحدة لاختيار الورش والمحطات
          window.openTargetSelectModal = function(targetId) {
              var contacts = JSON.parse(localStorage.getItem('car_emergency_contacts') || '[]');
              var container = document.getElementById('workshopListModalContainer');
@@ -1187,7 +1318,6 @@
              var set = new Set();
              contacts.forEach(function(c) {
                  if(c.title && c.title.trim()) {
-                     // تصفية اختيارية أو جلب الكل
                      if(targetId === 'fuelLocation' && c.category === 'محطات وقود') set.add(c.title.trim());
                      else if(targetId !== 'fuelLocation' && c.category !== 'محطات وقود') set.add(c.title.trim());
                  }
@@ -1210,7 +1340,6 @@
              document.getElementById('workshopSelectModal').style.display = 'flex';
          };
 
-         // --- Emergency Contacts Logic ---
          window.toggleEmergencyForm = function() {
              var form = document.getElementById('emergencyFormContainer');
              var btn = document.getElementById('btnToggleEmgForm');
@@ -1343,8 +1472,9 @@
              }
          };
 
-         // --- إدارة الوقود ---
          window.currentFuels = [];
+         window.currentPays = [];
+         
          window.initFuelSettings = function() {
              var data = JSON.parse(localStorage.getItem(GLOBAL_SETTINGS_KEY) || '{}');
              if(!data.fuels) {
@@ -1354,8 +1484,13 @@
                      { name: 'بنزين 80', price: data.price80 || 11.00 }
                  ];
              }
+             if(!data.pays) {
+                 data.pays = ['نقدي 💵', 'فيزا 💳', 'أوكتين 📟'];
+             }
              window.currentFuels = data.fuels;
+             window.currentPays = data.pays;
              window.renderFuelSettings();
+             window.renderPaySettings();
          };
 
          window.renderFuelSettings = function() {
@@ -1375,6 +1510,23 @@
                  `;
              });
          };
+         
+         window.renderPaySettings = function() {
+             var container = document.getElementById('paySettingsContainer');
+             container.innerHTML = '';
+             window.currentPays.forEach(function(p, index) {
+                 container.innerHTML += `
+                 <div style="display:flex; gap:5px; margin-bottom:8px; align-items:center; background:#f8fafc; padding:8px; border-radius:8px; border:1px solid var(--border-color);">
+                     <div style="display:flex; flex-direction:column; gap:2px; flex-shrink:0;">
+                         <button type="button" onclick="window.movePay(${index}, -1)" style="border:none; background:none; cursor:pointer; color:var(--primary); font-size:1.1rem; ${index===0?'opacity:0.3; cursor:default;':''}" ${index===0?'disabled':''}>🔼</button>
+                         <button type="button" onclick="window.movePay(${index}, 1)" style="border:none; background:none; cursor:pointer; color:var(--primary); font-size:1.1rem; ${index===window.currentPays.length-1?'opacity:0.3; cursor:default;':''}" ${index===window.currentPays.length-1?'disabled':''}>🔽</button>
+                     </div>
+                     <input type="text" id="payName_${index}" value="${p}" placeholder="طريقة الدفع" style="flex:1; padding:8px; border:1px solid #ccc; border-radius:4px; font-weight:bold; font-size:0.9rem; min-width:0;">
+                     <button type="button" onclick="window.confirmRemovePay(${index})" style="border:none; background:transparent; color:var(--danger); font-size:1.1rem; cursor:pointer; padding:5px 8px; flex-shrink:0;" title="حذف">✖</button>
+                 </div>
+                 `;
+             });
+         };
 
          window.confirmRemoveFuel = function(index) {
              window.showCustomConfirm(
@@ -1382,6 +1534,15 @@
                  'هل أنت متأكد من حذف هذا الوقود نهائياً؟',
                  'نعم، احذف 🗑️',
                  function() { window.removeFuel(index); }
+             );
+         };
+         
+         window.confirmRemovePay = function(index) {
+             window.showCustomConfirm(
+                 'حذف طريقة الدفع',
+                 'هل أنت متأكد من حذف وسيلة الدفع هذه؟',
+                 'نعم، احذف 🗑️',
+                 function() { window.removePay(index); }
              );
          };
 
@@ -1394,17 +1555,39 @@
              arr[index + dir] = temp;
              window.renderFuelSettings();
          };
+         
+         window.movePay = function(index, dir) {
+             window.saveCurrentPaysFromDOM();
+             var arr = window.currentPays;
+             if(index + dir < 0 || index + dir >= arr.length) return;
+             var temp = arr[index];
+             arr[index] = arr[index + dir];
+             arr[index + dir] = temp;
+             window.renderPaySettings();
+         };
 
          window.addFuelOption = function() {
              window.saveCurrentFuelsFromDOM();
              window.currentFuels.push({name: 'وقود جديد', price: 0});
              window.renderFuelSettings();
          };
+         
+         window.addPayOption = function() {
+             window.saveCurrentPaysFromDOM();
+             window.currentPays.push('طريقة دفع جديدة');
+             window.renderPaySettings();
+         };
 
          window.removeFuel = function(index) {
              window.saveCurrentFuelsFromDOM();
              window.currentFuels.splice(index, 1);
              window.renderFuelSettings();
+         };
+         
+         window.removePay = function(index) {
+             window.saveCurrentPaysFromDOM();
+             window.currentPays.splice(index, 1);
+             window.renderPaySettings();
          };
 
          window.saveCurrentFuelsFromDOM = function() {
@@ -1415,22 +1598,44 @@
                  if(p) window.currentFuels[i].price = p.value;
              }
          };
+         
+         window.saveCurrentPaysFromDOM = function() {
+             for(var i=0; i<window.currentPays.length; i++) {
+                 var n = document.getElementById('payName_'+i);
+                 if(n) window.currentPays[i] = n.value;
+             }
+         };
 
-         window.updateFuelSelects = function() {
+         window.updateGlobalSelects = function() {
              var data = JSON.parse(localStorage.getItem(GLOBAL_SETTINGS_KEY) || '{}');
              var fuels = data.fuels || [
                  { name: 'بنزين 92', price: 13.75 }, { name: 'بنزين 95', price: 15.00 }, { name: 'بنزين 80', price: 11.00 }
              ];
-             var select = document.getElementById('fuelType');
-             if(!select) return;
-             select.innerHTML = '';
-             fuels.forEach(function(f, i) {
-                 var opt = document.createElement('option');
-                 opt.value = f.name;
-                 opt.innerText = f.name;
-                 if (i === 0) opt.selected = true; 
-                 select.appendChild(opt);
-             });
+             var pays = data.pays || ['نقدي 💵', 'فيزا 💳', 'أوكتين 📟'];
+             
+             var fuelSelect = document.getElementById('fuelType');
+             if(fuelSelect) {
+                 fuelSelect.innerHTML = '';
+                 fuels.forEach(function(f, i) {
+                     var opt = document.createElement('option');
+                     opt.value = f.name;
+                     opt.innerText = f.name;
+                     if (i === 0) opt.selected = true; 
+                     fuelSelect.appendChild(opt);
+                 });
+             }
+             
+             var paySelect = document.getElementById('payMethod');
+             if(paySelect) {
+                 paySelect.innerHTML = '';
+                 pays.forEach(function(p, i) {
+                     var opt = document.createElement('option');
+                     opt.value = p;
+                     opt.innerText = p;
+                     if (i === 0) opt.selected = true; 
+                     paySelect.appendChild(opt);
+                 });
+             }
          };
          
          window.showSuccessMessage = function(message) {
@@ -1615,6 +1820,8 @@
              if(id === 'globalSettingsModal') window.initFuelSettings(); 
              if(id === 'alertsModal') window.renderAlertsModal();
              if(id === 'logsSidebar') window.renderLogsSidebar();
+             if(id === 'faultsSidebar') window.renderFaults();
+             
              var el = document.getElementById(id);
              if(!el) return;
               if (isSidebar) {
@@ -1699,7 +1906,6 @@
               window.requestExitApp();
          });
 
-          // تفعيل السحب اليميني لفتح السجل
           window.setupSwipeGesture = function() {
              var touchstartX = 0;
              var touchendX = 0;
@@ -1766,7 +1972,7 @@
          };
 
           window.initApp = function() {
-             window.updateFuelSelects(); 
+             window.updateGlobalSelects(); 
              var state = JSON.parse(localStorage.getItem(APP_STATE_KEY));
              if (!state || !state.cars) {
                  state = { cars: [], activeCarId: null };
@@ -1780,6 +1986,7 @@
              var fd = document.getElementById('fuelDate'); if(fd) fd.valueAsDate = new Date();
              var sd = document.getElementById('serviceDate'); if(sd) sd.valueAsDate = new Date();
              var od = document.getElementById('otherDate'); if(od) od.valueAsDate = new Date();
+             var falD = document.getElementById('faultDate'); if(falD) falD.valueAsDate = new Date();
              window.setupSwipeGesture();
          };
           window.onload = function() { window.initApp(); };
@@ -1804,11 +2011,22 @@
              return alerts;
          };
 
-          // دوال إدارة التنبيهات المخصصة
           window.toggleAlertFields = function() {
              var type = document.getElementById('alertType').value;
              document.getElementById('alertDateGroup').style.display = (type === 'date' || type === 'both') ? 'block' : 'none';
              document.getElementById('alertOdoGroup').style.display = (type === 'odo' || type === 'both') ? 'block' : 'none';
+         };
+         
+         window.toggleCustomAlertForm = function() {
+             var form = document.getElementById('customAlertsFormContainer');
+             var btn = document.getElementById('btnToggleCustomAlert');
+             if (form.style.display === 'none') {
+                 form.style.display = 'block';
+                 btn.style.display = 'none';
+             } else {
+                 form.style.display = 'none';
+                 btn.style.display = 'block';
+             }
          };
 
          window.saveCustomAlert = function() {
@@ -1829,16 +2047,24 @@
              document.getElementById('alertTitle').value = '';
              document.getElementById('alertDate').value = '';
              document.getElementById('alertOdo').value = '';
+             window.toggleCustomAlertForm();
              window.renderCustomAlerts();
              window.updateDashboard();
          };
 
          window.renderCustomAlerts = function() {
              if(!window.activeCarId) return;
+             var searchInput = document.getElementById('alertSearchInput');
+             var filterText = searchInput ? searchInput.value.toLowerCase() : '';
+             
              var alerts = JSON.parse(localStorage.getItem('car_custom_alerts_' + window.activeCarId) || '[]');
              var html = '';
+             var matchCount = 0;
              for(var i=0; i<alerts.length; i++) {
                  var a = alerts[i];
+                 if(filterText && a.title.toLowerCase().indexOf(filterText) === -1) continue;
+                 matchCount++;
+                 
                  var info = [];
                  if(a.type === 'date' || a.type === 'both') info.push('📅 ' + a.date);
                  if(a.type === 'odo' || a.type === 'both') info.push('⏱️ ' + a.odo + ' كم');
@@ -1847,7 +2073,7 @@
                      '<button onclick="window.deleteCustomAlert(\'' + a.id + '\')" style="background:none; border:none; color:var(--danger); font-size:1.2rem; cursor:pointer;">✖</button>' +
                  '</div>';
              }
-             if(html === '') html = '<p style="text-align:center; color:var(--text-muted); font-size:0.85rem;">لا توجد تنبيهات مخصصة.</p>';
+             if(matchCount === 0) html = '<p style="text-align:center; color:var(--text-muted); font-size:0.85rem;">لا توجد تنبيهات ' + (filterText ? 'مطابقة للبحث' : 'مخصصة') + '.</p>';
              document.getElementById('customAlertsList').innerHTML = html;
          };
 
@@ -1904,7 +2130,6 @@
                  if(dismissed.indexOf(licAlerts[a].id) === -1) alertCount++;
              }
 
-             // حساب التنبيهات المخصصة
              var customAlerts = JSON.parse(localStorage.getItem('car_custom_alerts_' + carId) || '[]');
              var today = new Date(); today.setHours(0,0,0,0);
              for(var c=0; c<customAlerts.length; c++) {
@@ -2041,9 +2266,14 @@
                  alert('رمز التأكيد غير صحيح ❌');
              }
          };
+         
           window.deleteCarConfirmed = function(id) {
              var state = JSON.parse(localStorage.getItem(APP_STATE_KEY));
-             localStorage.removeItem('car_logs_' + id); localStorage.removeItem('car_mydata_' + id); localStorage.removeItem('dismissed_alerts_' + id); localStorage.removeItem('car_custom_alerts_' + id);
+             localStorage.removeItem('car_logs_' + id); 
+             localStorage.removeItem('car_mydata_' + id); 
+             localStorage.removeItem('dismissed_alerts_' + id); 
+             localStorage.removeItem('car_custom_alerts_' + id);
+             localStorage.removeItem('car_faults_' + id); 
              var newCars = [];
              for(var i=0; i<state.cars.length; i++) { if(state.cars[i].id !== id) newCars.push(state.cars[i]); }
              state.cars = newCars;
@@ -2066,6 +2296,7 @@
              var fd = document.getElementById('fuelDate'); if(fd) fd.valueAsDate = new Date();
              var sd = document.getElementById('serviceDate'); if(sd) sd.valueAsDate = new Date();
              var od = document.getElementById('otherDate'); if(od) od.valueAsDate = new Date();
+             var falD = document.getElementById('faultDate'); if(falD) falD.valueAsDate = new Date();
              document.getElementById('activeEditLogId').value = '';
              var allTabs = document.querySelectorAll('.tab-content');
              var allTabBtns = document.querySelectorAll('.tab-btn');
@@ -2184,16 +2415,18 @@
           window.toggleReceiptCam = function() {
              var method = document.getElementById('payMethod').value;
              var container = document.getElementById('receiptCamContainer');
-             if (method.indexOf('فيزا') !== -1 || method.indexOf('أوكتين') !== -1) container.style.display = 'block';
+             if (method && (method.indexOf('فيزا') !== -1 || method.indexOf('أوكتين') !== -1)) container.style.display = 'block';
              else container.style.display = 'none';
          };
           window.saveGlobalSettings = function() {
              window.saveCurrentFuelsFromDOM();
+             window.saveCurrentPaysFromDOM();
              var data = JSON.parse(localStorage.getItem(GLOBAL_SETTINGS_KEY) || '{}');
              data.fuels = window.currentFuels;
+             data.pays = window.currentPays;
              localStorage.setItem(GLOBAL_SETTINGS_KEY, JSON.stringify(data)); 
-             alert('تم حفظ الإعدادات.');
-             window.updateFuelSelects();
+             alert('تم حفظ الإعدادات بنجاح.');
+             window.updateGlobalSelects();
              window.closeOverlay();
              if(document.getElementById('appScreen').style.display === 'block') { window.updateFuelPriceDisplay(); window.updateDashboard(); }
          };
@@ -2233,18 +2466,20 @@
              var fuels = data.fuels || [
                  { name: 'بنزين 92', price: 13.75 }, { name: 'بنزين 95', price: 15.00 }, { name: 'بنزين 80', price: 11.00 }
              ];
-             var fuelType = document.getElementById('fuelType').value;
+             var fuelTypeSelect = document.getElementById('fuelType');
+             var fuelType = fuelTypeSelect ? fuelTypeSelect.value : '';
              var display = document.getElementById('fuelPriceDisplay');
              var price = 0;
              for(var i=0; i<fuels.length; i++) {
                  if(fuels[i].name === fuelType) { price = fuels[i].price; break; }
              }
-             if (price > 0) { display.innerText = 'يُحسب على سعر: ' + price + ' ج.م / لتر'; display.style.display = 'block'; } else { display.style.display = 'none'; }
+             if (price > 0 && display) { display.innerText = 'يُحسب على سعر: ' + price + ' ج.م / لتر'; display.style.display = 'block'; } else if (display) { display.style.display = 'none'; }
          };
          
          window.calcLiters = function() {
              var cost = parseFloat(document.getElementById('fuelCost').value) || 0;
-             var type = document.getElementById('fuelType').value;
+             var fuelTypeSelect = document.getElementById('fuelType');
+             var type = fuelTypeSelect ? fuelTypeSelect.value : '';
              var data = JSON.parse(localStorage.getItem(GLOBAL_SETTINGS_KEY) || '{}');
              var fuels = data.fuels || [
                  { name: 'بنزين 92', price: 13.75 }, { name: 'بنزين 95', price: 15.00 }, { name: 'بنزين 80', price: 11.00 }
@@ -2254,9 +2489,9 @@
                  if(fuels[i].name === type) { price = parseFloat(fuels[i].price); break; }
              }
              var fuelLitersEl = document.getElementById('fuelLiters');
-             if (price > 0 && cost > 0) {
-                 fuelLitersEl.value = Math.round(cost / price);
-             } else {
+             if (price > 0 && cost > 0 && fuelLitersEl) {
+                 fuelLitersEl.value = (cost / price).toFixed(2);
+             } else if (fuelLitersEl) {
                  fuelLitersEl.value = '';
              }
          };
@@ -2286,16 +2521,18 @@
                  successCallback();
              }
          };
+         
           window.handleFuelSubmit = function(e) {
              e.preventDefault();
              var dateStr = document.getElementById('fuelDate').value; var odoStr = document.getElementById('fuelOdometer').value; var editId = document.getElementById('activeEditLogId').value;
              window.validateOdoAndRun(dateStr, odoStr, editId, function() {
                  var logs = window.getLogs(); var cost = parseFloat(document.getElementById('fuelCost').value); var fuelType = document.getElementById('fuelType').value;
                  var liters = parseFloat(document.getElementById('fuelLiters').value) || 0;
+                 var payMethodVal = document.getElementById('payMethod').value || 'نقدي 💵';
                  var logObj = {
                      id: editId ? parseInt(editId) : Date.now(), type: 'وقود', date: dateStr, desc: fuelType,
                      location: document.getElementById('fuelLocation').value, odometer: odoStr,
-                     payMethod: document.getElementById('payMethod').value || 'نقدي 💵', cost: cost, liters: liters,
+                     payMethod: payMethodVal, cost: cost, liters: liters,
                      odoImg: document.getElementById('odoBase64').value, receiptImg: document.getElementById('receiptBase64').value, synced: false
                  };
                  if(editId) {
@@ -2311,6 +2548,7 @@
                  window.toggleReceiptCam(); window.updateFuelPriceDisplay();
              });
          };
+         
           window.handleServiceSubmit = function(e) {
              e.preventDefault();
              var dateStr = document.getElementById('serviceDate').value; var odoStr = document.getElementById('serviceOdo').value; var editId = document.getElementById('activeEditLogId').value;
@@ -2333,6 +2571,7 @@
                  document.getElementById('activeEditLogId').value = ''; document.getElementById('btnServiceSubmit').innerText = 'حفظ الصيانة';
              });
          };
+         
           window.handleOtherSubmit = function(e) {
              e.preventDefault();
              var dateStr = document.getElementById('otherDate').value; var odoStr = document.getElementById('otherOdo').value; var editId = document.getElementById('activeEditLogId').value;
@@ -2392,9 +2631,19 @@
              if(log.type === 'وقود') {
                  document.querySelectorAll('.tab-btn')[0].click(); document.getElementById('fuelDate').value = log.date; document.getElementById('fuelType').value = log.desc;
                  document.getElementById('fuelLocation').value = log.location || ''; document.getElementById('fuelOdometer').value = log.odometer || '';
+                 
                  var pm = log.payMethod || 'نقدي 💵';
-                 if(pm.indexOf('فيزا') !== -1) pm = 'فيزا 💳'; else if(pm.indexOf('أوكتين') !== -1) pm = 'أوكتين 📟'; else pm = 'نقدي 💵';
-                 document.getElementById('payMethod').value = pm; document.getElementById('fuelCost').value = log.cost; document.getElementById('fuelLiters').value = log.liters || '';
+                 var paySelect = document.getElementById('payMethod');
+                 var pmExists = false;
+                 for(var p=0; p<paySelect.options.length; p++) { if(paySelect.options[p].value === pm) { pmExists = true; break; } }
+                 if(!pmExists) {
+                     var opt = document.createElement('option');
+                     opt.value = pm; opt.innerText = pm;
+                     paySelect.appendChild(opt);
+                 }
+                 paySelect.value = pm;
+                 
+                 document.getElementById('fuelCost').value = log.cost; document.getElementById('fuelLiters').value = log.liters || '';
                  if(log.odoImg) { document.getElementById('odoBase64').value = log.odoImg; document.getElementById('odoImgPreview').src = log.odoImg; document.getElementById('odoImgWrapper').style.display='block'; }
                  if(log.receiptImg) { document.getElementById('receiptBase64').value = log.receiptImg; document.getElementById('receiptImgPreview').src = log.receiptImg; document.getElementById('receiptImgWrapper').style.display='block'; }
                  window.toggleReceiptCam(); window.updateFuelPriceDisplay(); document.getElementById('btnFuelSubmit').innerText = 'تحديث سجل الوقود';
@@ -2824,7 +3073,7 @@
                  html += '<div class="detail-row"><span>القسم:</span> <strong>' + log.serviceCategory + '</strong></div><div class="detail-row"><span>الوصف:</span> <strong>' + log.desc + '</strong></div>';
                  if (log.interval) html += '<div class="detail-row"><span>فترة التغيير:</span> <strong>' + log.interval + ' كم</strong></div>';
              } else if (log.type === 'وقود') {
-                 var payMethod = log.payMethod || 'نقدي 💵'; var liters = log.liters ? Math.round(parseFloat(log.liters)) : '';
+                 var payMethod = log.payMethod || 'نقدي 💵'; var liters = log.liters ? parseFloat(log.liters).toFixed(2) : '';
                  html += '<div class="detail-row"><span>البنزين:</span> <strong>' + log.desc + ' ⛽</strong></div><div class="detail-row"><span>طريقة الدفع:</span> <strong>' + payMethod + '</strong></div>';
                  if(liters) html += '<div class="detail-row"><span>الكمية:</span> <strong style="color:var(--accent);">' + liters + ' لتر</strong></div>';
              } else { html += '<div class="detail-row"><span>الوصف:</span> <strong>' + log.desc + '</strong></div>'; }
